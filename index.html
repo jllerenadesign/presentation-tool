@@ -120,10 +120,10 @@
         /* Cards grid */
         .cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
             gap: clamp(1rem, 2.5vw, 1.5rem);
             width: 100%;
-            max-width: 780px;
+            max-width: 1080px;
         }
 
         .card {
@@ -143,6 +143,7 @@
 
         .card:nth-child(1) { animation: reveal 0.8s cubic-bezier(0.16,1,0.3,1) 0.25s forwards; }
         .card:nth-child(2) { animation: reveal 0.8s cubic-bezier(0.16,1,0.3,1) 0.38s forwards; }
+        .card:nth-child(3) { animation: reveal 0.8s cubic-bezier(0.16,1,0.3,1) 0.51s forwards; }
 
         .card:hover {
             background: var(--white-10);
@@ -277,6 +278,18 @@
                 <p>Four focused improvement areas — Discoverability, User Communication, Product Visibility, and Release Readiness — to strengthen how Sakani is seen and delivered.</p>
                 <div class="card-footer">
                     <span class="card-meta">9 slides · Management Discussion · 2026</span>
+                    <span class="card-cta">Open →</span>
+                </div>
+            </a>
+
+            <a class="card" href="sakani-images-presentation.html">
+                <div class="card-top">
+                    <span class="card-label">Report 01</span>
+                </div>
+                <h2>Image Optimization · Executive Presentation</h2>
+                <p>Executive-level audit of Sakani's image strategy — findings, impact on performance and SEO, and prioritized recommendations for improvement.</p>
+                <div class="card-footer">
+                    <span class="card-meta">Executive Presentation · SEO</span>
                     <span class="card-cta">Open →</span>
                 </div>
             </a>

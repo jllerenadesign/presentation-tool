@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sakani — Image Optimization · Executive Presentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+/* =============================================
+   BASE — VIEWPORT FITTING (mandatory)
+   ============================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; overflow-x: hidden; font-family: 'Manrope', system-ui, sans-serif; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+.slide {
+  width: 100vw; height: 100vh; height: 100dvh;
+  overflow: hidden; scroll-snap-align: start;
+  display: flex; flex-direction: column;
+  position: relative;
+}
+
+:root {
+  --title-size:   clamp(1.6rem, 4.5vw, 3.8rem);
+  --h2-size:      clamp(1.2rem, 3vw, 2.2rem);
+  --h3-size:      clamp(1rem, 2vw, 1.5rem);
+  --body-size:    clamp(0.75rem, 1.4vw, 1.05rem);
+  --small-size:   clamp(0.65rem, 1vw, 0.85rem);
+  --slide-pad:    clamp(1.5rem, 5vw, 5rem);
+  --gap:          clamp(0.5rem, 1.5vw, 1.5rem);
+
+  /* Sakani brand palette */
+  --black:  #004431;
+  --white:  #ffffff;
+  --blue:   #004431;
+  --blue-d: #003326;
+  --blue-l: #e6f0ec;
+  --mid:    #6b7280;
+  --light:  #f3f4f6;
+  --red:    #e53e3e;
+  --orange: #dd6b20;
+  --green:  #276749;
+  --green-l:#c6f6d5;
+}
+
+/* =============================================
+   NAVIGATION
+   ============================================= */
+.nav-dots {
+  position: fixed; right: clamp(12px, 2vw, 24px); top: 50%;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 100;
+}
+.nav-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(0,0,0,.2); border: 1.5px solid rgba(0,0,0,.3);
+  cursor: pointer; transition: all .25s;
+}
+.nav-dot.active { background: var(--blue); border-color: var(--blue); transform: scale(1.4); }
+.nav-dot.light  { background: rgba(255,255,255,.35); border-color: rgba(255,255,255,.5); }
+.nav-dot.light.active { background: white; border-color: white; }
+
+.slide-counter {
+  position: fixed; bottom: clamp(12px, 2vh, 24px); right: clamp(16px, 2vw, 28px);
+  font-size: var(--small-size); font-weight: 600; color: var(--mid);
+  z-index: 100; font-family: 'Manrope', sans-serif;
+}
+.slide-counter.light { color: rgba(255,255,255,.5); }
+
+.kbd-hint {
+  position: fixed; bottom: clamp(14px, 2.5vh, 28px); left: 50%; transform: translateX(-50%);
+  z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  animation: kbd-pulse 2.8s ease-in-out infinite;
+}
+.kbd-key {
+  width: clamp(24px, 2.8vw, 30px); height: clamp(24px, 2.8vw, 30px);
+  border-radius: 5px;
+  background: linear-gradient(to bottom, #f5f5f5, #ddd);
+  border: 1.5px solid #999;
+  box-shadow: 0 3px 0 #777, 0 1px 4px rgba(0,0,0,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(10px, 1.2vw, 13px); font-weight: 700; color: #222;
+  font-family: 'Manrope', sans-serif;
+  user-select: none;
+}
+.kbd-label {
+  font-size: clamp(8px, .9vw, 10px); font-weight: 700;
+  color: rgba(255,255,255,.6);
+  text-transform: uppercase; letter-spacing: .08em;
+  text-shadow: 0 1px 3px rgba(0,0,0,.6);
+  font-family: 'Manrope', sans-serif;
+}
+@keyframes kbd-pulse {
+  0%, 100% { opacity: .55; }
+  50% { opacity: 1; }
+}
+
+/* =============================================
+   SLIDE 1 — TITLE (Electric Studio)
+   ============================================= */
+#s1 { background: var(--black); }
+
+.s1-split {
+  display: grid; grid-template-columns: 1fr 1fr;
+  height: 100%; width: 100%;
+}
+.s1-left {
+  background: var(--white);
+  display: flex; flex-direction: column;
+  justify-content: flex-start;
+  padding: var(--slide-pad);
+  position: relative;
+}
+.s1-prop-img {
+  display: block;
+  width: calc(100% + 2 * var(--slide-pad));
+  margin-top: calc(-1 * var(--slide-pad));
+  margin-left: calc(-1 * var(--slide-pad));
+  margin-right: calc(-1 * var(--slide-pad));
+  margin-bottom: clamp(.75rem, 2vw, 1.5rem);
+  height: clamp(130px, 30vh, 260px);
+  object-fit: cover;
+  object-position: center 60%;
+  flex-shrink: 0;
+}
+.s1-left::after {
+  content: ''; position: absolute; right: 0; top: 10%; bottom: 10%;
+  width: 3px; background: var(--blue);
+}
+.s1-right {
+  background: var(--black);
+  display: flex; flex-direction: column;
+  justify-content: flex-end;
+  padding: var(--slide-pad);
+}
+
+.s1-eyebrow {
+  font-size: var(--small-size); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .12em;
+  color: var(--blue); margin-bottom: clamp(.5rem, 1.5vw, 1rem);
+}
+.s1-title {
+  font-size: var(--title-size); font-weight: 800;
+  line-height: 1.1; color: var(--black);
+  margin-bottom: clamp(.75rem, 2vw, 1.5rem);
+}
+.s1-title em { color: var(--blue); font-style: normal; }
+.s1-sub {
+  font-size: var(--body-size); color: var(--mid);
+  max-width: 38ch; line-height: 1.65;
+}
+
+.s1-stat {
+  margin-bottom: clamp(1rem, 3vw, 2.5rem);
+}
+.s1-stat-num {
+  font-size: clamp(3rem, 8vw, 7rem); font-weight: 800;
+  line-height: 1; color: var(--white);
+}
+.s1-stat-label {
+  font-size: var(--body-size); color: rgba(255,255,255,.5);
+  margin-top: .25rem;
+}
+.s1-meta {
+  display: flex; flex-direction: column; gap: .4rem;
+  font-size: var(--small-size); color: rgba(255,255,255,.35);
+  border-top: 1px solid rgba(255,255,255,.1);
+  padding-top: clamp(.75rem, 2vw, 1.5rem);
+  margin-top: clamp(.75rem, 2vw, 1.5rem);
+}
+.s1-meta span { display: flex; gap: .5rem; align-items: center; }
+.s1-meta strong { color: rgba(255,255,255,.6); }
+
+/* =============================================
+   SHARED — SECTION HEADER (white slides)
+   ============================================= */
+.slide-white { background: var(--white); }
+.slide-light { background: var(--light); }
+.slide-blue  { background: var(--blue); }
+.slide-dark  { background: var(--black); }
+
+.inner {
+  height: 100%; display: flex; flex-direction: column;
+  justify-content: center; padding: var(--slide-pad);
+  max-height: 100%; overflow: hidden;
+}
+
+.eyebrow {
+  font-size: var(--small-size); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .1em;
+  margin-bottom: clamp(.5rem, 1.5vw, 1rem);
+}
+.eyebrow-blue   { color: var(--blue); }
+.eyebrow-white  { color: rgba(255,255,255,.6); }
+.eyebrow-orange { color: var(--orange); }
+.eyebrow-red    { color: var(--red); }
+
+h2.slide-h2 {
+  font-size: var(--h2-size); font-weight: 800;
+  line-height: 1.15; margin-bottom: clamp(.75rem, 2vw, 1.75rem);
+}
+.text-white { color: var(--white); }
+.text-black { color: var(--black); }
+.text-mid   { color: var(--mid); }
+.text-blue  { color: var(--blue); }
+
+/* =============================================
+   SLIDE 2 — SCALE OPPORTUNITY
+   ============================================= */
+.scale-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--gap); margin-top: clamp(1rem, 2.5vw, 2rem);
+}
+.scale-card {
+  background: var(--blue-l);
+  border: 1.5px solid var(--blue);
+  border-radius: clamp(8px, 1vw, 14px);
+  padding: clamp(.75rem, 2vw, 1.5rem);
+  display: flex; flex-direction: column;
+}
+.scale-card .sc-num {
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 800; color: var(--blue);
+  line-height: 1; margin-bottom: .35rem;
+}
+.scale-card .sc-label {
+  font-size: var(--small-size); color: var(--mid); line-height: 1.5;
+}
+.scale-desc {
+  font-size: var(--body-size); color: var(--mid);
+  line-height: 1.65; max-width: 60ch;
+  margin-bottom: clamp(.5rem, 1.5vw, 1rem);
+}
+.alert-bar {
+  display: flex; align-items: flex-start; gap: .75rem;
+  background: #fff5f5; border: 1.5px solid #fca5a5;
+  border-radius: 8px; padding: clamp(.6rem, 1.5vw, 1rem) clamp(.75rem, 2vw, 1.25rem);
+  margin-bottom: clamp(.75rem, 2vw, 1.5rem);
+}
+.alert-bar .a-icon { font-size: clamp(1rem, 2vw, 1.4rem); flex-shrink: 0; }
+.alert-bar p { font-size: var(--body-size); color: #7f1d1d; line-height: 1.5; }
+.alert-bar strong { color: var(--red); }
+
+/* =============================================
+   SLIDE 3 — AUDIT OVERVIEW (split layout)
+   ============================================= */
+.audit-split { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); height: 100%; }
+.audit-col { display: flex; flex-direction: column; justify-content: center; padding: var(--slide-pad); }
+.audit-col-right { background: var(--blue); padding: var(--slide-pad); display: flex; flex-direction: column; justify-content: center; }
+
+.audit-rows { display: flex; flex-direction: column; gap: clamp(.4rem, 1vw, .75rem); margin-top: clamp(.5rem, 1.5vw, 1rem); }
+.audit-row {
+  display: grid; grid-template-columns: 1fr auto;
+  gap: .5rem; align-items: center;
+  padding: clamp(.5rem, 1.2vw, .85rem) clamp(.6rem, 1.5vw, 1rem);
+  background: var(--light); border-radius: 8px;
+  font-size: var(--body-size);
+}
+.audit-row .ar-label { font-weight: 600; color: var(--black); }
+.audit-row .ar-sub   { font-size: var(--small-size); color: var(--mid); }
+.status-pill {
+  display: inline-flex; align-items: center; gap: .3rem;
+  font-size: var(--small-size); font-weight: 700;
+  padding: 3px 10px; border-radius: 99px; white-space: nowrap;
+}
+.p-red    { background: #fee2e2; color: var(--red); }
+.p-orange { background: #ffedd5; color: var(--orange); }
+.p-green  { background: var(--green-l); color: var(--green); }
+
+.score-big {
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: clamp(.5rem, 1.5vw, 1.25rem);
+}
+.score-big .sb-n {
+  font-size: clamp(5rem, 14vw, 11rem); font-weight: 800;
+  line-height: 1; color: white;
+}
+.score-big .sb-label { font-size: var(--body-size); color: rgba(255,255,255,.6); }
+.score-divider { width: 60px; height: 2px; background: rgba(255,255,255,.25); }
+.score-target {
+  display: flex; flex-direction: column; align-items: center; gap: .25rem;
+}
+.score-target .st-n { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; color: rgba(255,255,255,.35); }
+.score-target .st-l { font-size: var(--small-size); color: rgba(255,255,255,.4); }
+
+/* =============================================
+   SLIDE 4 — PROBLEM: ALT TEXT
+   ============================================= */
+.problem-split { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); height: 100%; }
+.ps-left  { padding: var(--slide-pad); display: flex; flex-direction: column; justify-content: center; }
+.ps-right { background: var(--light); padding: var(--slide-pad); display: flex; flex-direction: column; justify-content: center; }
+
+.problem-num {
+  font-size: clamp(4rem, 10vw, 8rem); font-weight: 800;
+  color: var(--blue-l); line-height: 1;
+  position: absolute; top: var(--slide-pad); left: var(--slide-pad);
+}
+.problem-num-dark { color: rgba(255,255,255,.06); }
+
+.before-after { display: flex; flex-direction: column; gap: var(--gap); }
+.ba-block { background: var(--white); border-radius: 10px; overflow: hidden; border: 1.5px solid #e5e7eb; }
+.ba-label {
+  padding: clamp(.4rem, 1vw, .6rem) clamp(.75rem, 1.5vw, 1rem);
+  font-size: var(--small-size); font-weight: 700; text-transform: uppercase; letter-spacing: .07em;
+}
+.ba-before { background: #fee2e2; color: var(--red); }
+.ba-after  { background: var(--green-l); color: var(--green); }
+.ba-body   { padding: clamp(.6rem, 1.5vw, 1rem); }
+.img-thumb-mock {
+  height: clamp(50px, 8vh, 80px);
+  border-radius: 6px; margin-bottom: .5rem;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+}
+.thumb-blue { background: linear-gradient(135deg,#bfdbfe,#93c5fd); }
+.code-line {
+  font-family: 'Courier New', monospace; font-size: var(--small-size);
+  background: #f3f4f6; border-radius: 4px; padding: .4rem .6rem;
+  line-height: 1.6; word-break: break-all;
+}
+.code-bad  { color: var(--red); }
+.code-good { color: var(--green); }
+.impact-note { font-size: var(--small-size); margin-top: .4rem; font-weight: 600; }
+.impact-bad  { color: var(--red); }
+.impact-good { color: var(--green); }
+
+/* =============================================
+   SLIDE 5 — PROBLEM: FORMAT / FILE SIZE
+   ============================================= */
+.format-slide { background: var(--black); }
+
+.format-inner {
+  padding: var(--slide-pad); height: 100%;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.format-grid {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: var(--gap); margin-top: clamp(.75rem, 2vw, 1.5rem);
+}
+.fmt-card {
+  border-radius: 10px; padding: clamp(.75rem, 2vw, 1.25rem);
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; border: 1.5px solid rgba(255,255,255,.1);
+}
+.fmt-card.current { background: rgba(229,62,62,.15); border-color: rgba(229,62,62,.4); }
+.fmt-card.better  { background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.30); }
+.fmt-card.best    { background: rgba(39,103,73,.25); border-color: rgba(39,103,73,.5); }
+.fmt-card.future  { background: rgba(255,255,255,.04); }
+.fmt-ext { font-size: clamp(1.2rem, 3vw, 2rem); font-weight: 800; margin-bottom: .35rem; }
+.fmt-size { font-size: clamp(1.5rem, 4vw, 3rem); font-weight: 800; line-height: 1; margin-bottom: .25rem; }
+.fmt-label { font-size: var(--small-size); line-height: 1.5; }
+.fmt-tag {
+  display: inline-block; font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 99px; margin-top: .4rem;
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.tag-current { background: rgba(229,62,62,.2); color: #fc8181; }
+.tag-good    { background: rgba(255,255,255,.15); color: rgba(255,255,255,.75); }
+.tag-best    { background: rgba(39,103,73,.3); color: #68d391; }
+.tag-soon    { background: rgba(255,255,255,.08); color: rgba(255,255,255,.4); }
+
+.savings-highlight {
+  margin-top: clamp(.75rem, 2vw, 1.5rem);
+  background: rgba(255,255,255,.10); border: 1.5px solid rgba(255,255,255,.25);
+  border-radius: 10px; padding: clamp(.75rem, 2vw, 1.25rem);
+  display: flex; align-items: center; gap: 1rem;
+}
+.sh-num { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; color: white; flex-shrink: 0; }
+.sh-text { font-size: var(--body-size); color: rgba(255,255,255,.65); line-height: 1.55; }
+.sh-text strong { color: white; }
+
+/* =============================================
+   SLIDE 6 — PROBLEM: LCP / SPEED
+   ============================================= */
+.lcp-inner { padding: var(--slide-pad); height: 100%; display: flex; flex-direction: column; justify-content: center; }
+
+.lcp-compare { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); margin-top: clamp(.75rem, 2vw, 1.5rem); }
+.lcp-box { background: var(--light); border-radius: 10px; padding: clamp(.75rem, 2vw, 1.25rem); }
+.lcp-box-label { font-size: var(--small-size); font-weight: 700; text-transform: uppercase; letter-spacing: .07em; margin-bottom: clamp(.5rem, 1.5vw, 1rem); }
+.lb-before { color: var(--red); }
+.lb-after  { color: var(--green); }
+
+.timeline { display: flex; flex-direction: column; gap: clamp(.4rem, 1vw, .7rem); }
+.tl-row { display: grid; grid-template-columns: 90px 1fr 46px; gap: .5rem; align-items: center; }
+.tl-label { font-size: var(--small-size); color: var(--mid); }
+.tl-track { height: 10px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
+.tl-bar { height: 100%; border-radius: 99px; }
+.tl-val { font-size: var(--small-size); font-weight: 700; text-align: right; }
+
+.lcp-verdict {
+  margin-top: clamp(.5rem, 1.5vw, 1rem);
+  padding: clamp(.5rem, 1.2vw, .85rem) clamp(.75rem, 1.5vw, 1rem);
+  border-radius: 8px; font-size: var(--small-size); font-weight: 700;
+  text-align: center;
+}
+.lv-bad  { background: #fee2e2; color: var(--red); }
+.lv-good { background: var(--green-l); color: var(--green); }
+
+.cwv-badges { display: flex; gap: .5rem; margin-bottom: clamp(.5rem, 1.5vw, 1rem); flex-wrap: wrap; }
+.cwv-badge {
+  display: flex; align-items: center; gap: .35rem;
+  background: var(--light); border: 1.5px solid #e5e7eb;
+  border-radius: 99px; padding: .25rem .75rem;
+  font-size: var(--small-size); font-weight: 600;
+}
+.cwv-badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+.dot-red    { background: var(--red); }
+.dot-green  { background: var(--green); }
+
+/* =============================================
+   SLIDE 7 — PROBLEM: CLS (layout shift)
+   ============================================= */
+.cls-screens { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); margin-top: clamp(.75rem, 2vw, 1.5rem); }
+.cls-phone {
+  background: var(--white); border: 1.5px solid #e5e7eb;
+  border-radius: 10px; overflow: hidden;
+}
+.cls-phone-bar {
+  background: var(--light); border-bottom: 1px solid #e5e7eb;
+  padding: .4rem .75rem; font-size: var(--small-size); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em; color: var(--mid);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.cls-phone-body { padding: clamp(.5rem, 1.5vw, 1rem); display: flex; flex-direction: column; gap: .4rem; }
+.ph-img-slot {
+  border-radius: 6px; display: flex; align-items: center; justify-content: center;
+  height: clamp(50px, 8vh, 75px); font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+}
+.ph-img-dashed { border: 2px dashed #d1d5db; background: #f9fafb; color: var(--mid); font-size: var(--small-size); }
+.ph-price { background: var(--light); border-radius: 4px; padding: .4rem .6rem; font-size: var(--small-size); font-weight: 700; }
+.ph-cta { background: var(--blue); color: white; border-radius: 6px; padding: .4rem .6rem; font-size: var(--small-size); font-weight: 700; text-align: center; }
+.ph-cta-shifted { background: #fee2e2; color: var(--red); border-radius: 6px; padding: .4rem .6rem; font-size: var(--small-size); font-weight: 700; text-align: center; }
+.shift-arrow { text-align: center; font-size: .8rem; color: var(--red); font-weight: 700; }
+.no-shift-line { text-align: center; font-size: var(--small-size); color: var(--green); font-weight: 700; }
+
+/* =============================================
+   SLIDE 8 — LAZY LOADING
+   ============================================= */
+.lazy-inner { background: var(--black); padding: var(--slide-pad); height: 100%; display: flex; flex-direction: column; justify-content: center; }
+.lazy-diagram { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); margin-top: clamp(.75rem, 2vw, 1.5rem); }
+.lazy-col { display: flex; flex-direction: column; gap: .4rem; }
+.lazy-col-label { font-size: var(--small-size); font-weight: 700; text-transform: uppercase; letter-spacing: .07em; margin-bottom: .25rem; }
+.photo-row {
+  display: flex; align-items: center; gap: .5rem;
+  padding: clamp(.4rem, 1vw, .65rem) clamp(.5rem, 1.2vw, .85rem);
+  border-radius: 8px; font-size: var(--small-size); font-weight: 600;
+}
+.photo-row .pr-icon { font-size: clamp(1rem, 2vw, 1.3rem); flex-shrink: 0; }
+.photo-row .pr-text { flex: 1; }
+.photo-row .pr-size { font-weight: 700; white-space: nowrap; }
+.pr-loading { background: rgba(229,62,62,.12); border: 1px solid rgba(229,62,62,.25); color: #fc8181; }
+.pr-lazy    { background: rgba(39,103,73,.15); border: 1px solid rgba(39,103,73,.3); color: #68d391; }
+.pr-hero    { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); color: rgba(255,255,255,.85); }
+.pr-deferred { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.4); }
+
+.lazy-total {
+  margin-top: clamp(.5rem, 1.5vw, 1rem);
+  padding: clamp(.5rem, 1.2vw, .75rem);
+  border-radius: 8px; font-size: var(--body-size); font-weight: 700; text-align: center;
+}
+.lt-bad  { background: rgba(229,62,62,.15); color: #fc8181; }
+.lt-good { background: rgba(39,103,73,.2); color: #68d391; }
+
+/* =============================================
+   SLIDE 9 — WHAT WE GAIN
+   ============================================= */
+.gain-inner { background: var(--blue); padding: var(--slide-pad); height: 100%; display: flex; flex-direction: column; justify-content: center; }
+.gain-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: var(--gap); margin-top: clamp(.75rem, 2vw, 1.5rem);
+}
+.gain-card {
+  background: rgba(255,255,255,.12); border: 1.5px solid rgba(255,255,255,.2);
+  border-radius: clamp(8px, 1vw, 14px);
+  padding: clamp(.75rem, 2vw, 1.5rem);
+}
+.gain-card .gc-icon { font-size: clamp(1.5rem, 3vw, 2.2rem); margin-bottom: .4rem; }
+.gain-card h3 { font-size: var(--h3-size); font-weight: 700; color: white; margin-bottom: .3rem; }
+.gain-card p  { font-size: var(--small-size); color: rgba(255,255,255,.65); line-height: 1.6; }
+
+/* =============================================
+   SLIDE 10 — NEXT STEPS
+   ============================================= */
+.steps-inner { padding: var(--slide-pad); height: 100%; display: flex; flex-direction: column; justify-content: center; }
+.steps-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: clamp(.4rem, 1vw, .75rem); margin-top: clamp(.5rem, 1.5vw, 1.25rem);
+}
+.step-card {
+  background: var(--light); border-radius: 10px;
+  padding: clamp(.6rem, 1.5vw, 1rem) clamp(.75rem, 1.5vw, 1.1rem);
+  display: grid; grid-template-columns: auto 1fr auto;
+  gap: .6rem; align-items: center;
+}
+.step-n {
+  width: clamp(22px, 3vw, 30px); height: clamp(22px, 3vw, 30px);
+  border-radius: 50%; background: var(--blue); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--small-size); font-weight: 700; flex-shrink: 0;
+}
+.step-text strong { display: block; font-size: var(--small-size); font-weight: 700; color: var(--black); margin-bottom: 2px; }
+.step-text span   { font-size: clamp(.6rem, .9vw, .78rem); color: var(--mid); }
+.step-effort {
+  font-size: clamp(.55rem, .85vw, .72rem); font-weight: 700;
+  padding: 2px 7px; border-radius: 99px; white-space: nowrap;
+}
+.ef-now    { background: #fee2e2; color: var(--red); }
+.ef-week   { background: var(--green-l); color: var(--green); }
+.ef-month  { background: #d1e8e1; color: #004431; }
+
+/* =============================================
+   SLIDE 11 — CLOSING / CTA
+   ============================================= */
+.closing-split { display: grid; grid-template-columns: 1fr 1fr; height: 100%; }
+.closing-left {
+  background: var(--black);
+  display: flex; flex-direction: column;
+  justify-content: center; padding: var(--slide-pad);
+}
+.closing-right {
+  background: var(--white);
+  display: flex; flex-direction: column;
+  justify-content: center; padding: var(--slide-pad);
+}
+.closing-metric {
+  display: flex; flex-direction: column; gap: clamp(.5rem, 2vw, 1.5rem);
+}
+.cm-row { display: flex; flex-direction: column; gap: .2rem; }
+.cm-row .cmr-n { font-size: clamp(2rem, 5.5vw, 4.5rem); font-weight: 800; line-height: 1; }
+.cm-row .cmr-l { font-size: var(--small-size); }
+.cm-row .now   { color: rgba(255,255,255,.35); }
+.cm-row .after { color: white; }
+.cm-row .lbl   { color: rgba(255,255,255,.5); }
+
+.cta-box {
+  background: var(--blue-l); border: 1.5px solid rgba(0,68,49,.2);
+  border-radius: 12px; padding: clamp(.75rem, 2vw, 1.5rem);
+  margin-top: clamp(1rem, 2.5vw, 2rem);
+}
+.cta-box h3 { font-size: var(--h3-size); font-weight: 800; color: var(--black); margin-bottom: .5rem; }
+.cta-box p  { font-size: var(--body-size); color: var(--mid); line-height: 1.6; }
+
+@media (max-height: 700px) {
+  :root { --slide-pad: clamp(1rem, 3vw, 2.5rem); --gap: clamp(.35rem, 1vw, .75rem); }
+}
+@media (max-height: 600px) {
+  :root { --slide-pad: clamp(.75rem, 2.5vw, 2rem); --title-size: clamp(1.3rem, 4vw, 2.8rem); --body-size: clamp(0.7rem, 1.2vw, 0.95rem); }
+  .nav-dots, .kbd-hint { display: none; }
+}
+@media (max-width: 600px) {
+  .s1-split, .audit-split, .problem-split, .lcp-compare, .cls-screens,
+  .lazy-diagram, .gain-grid, .steps-grid, .closing-split { grid-template-columns: 1fr; }
+  .format-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV DOTS -->
+<div class="nav-dots" id="navDots"></div>
+<div class="slide-counter" id="slideCounter">1 / 11</div>
+<div class="kbd-hint">
+  <div class="kbd-key">↑</div>
+  <div class="kbd-key">↓</div>
+  <span class="kbd-label">navigate</span>
+</div>
+
+<!-- ============================
+     SLIDE 1 — TITLE
+     ============================ -->
+<section class="slide" id="s1" data-theme="light">
+  <div class="s1-split">
+    <div class="s1-left">
+      <img src="/Users/juanllerena/Desktop/high_Murcia_Street.webp" alt="Sakani Murcia development — example property listing photo" class="s1-prop-img">
+      <div class="s1-eyebrow">Image Optimization · Executive Report</div>
+      <h1 class="s1-title">Property photos are <em>hurting</em> Sakani in search</h1>
+      <p class="s1-sub">Every unoptimised image on a listing page slows load speed, blocks Google indexing, and costs ranking position. This report shows what's broken and exactly how to fix it.</p>
+    </div>
+    <div class="s1-right">
+      <div class="s1-stat">
+        <div class="s1-stat-num">40</div>
+        <div class="s1-stat-label">/ 100 — Current image SEO score</div>
+      </div>
+      <div class="s1-stat">
+        <div class="s1-stat-num" style="font-size:clamp(2rem,5vw,4rem);color:rgba(255,255,255,.3)">78</div>
+        <div class="s1-stat-label">/ 100 — Achievable with fixes</div>
+      </div>
+      <div class="s1-meta">
+        <span><strong>Page:</strong> sakani.sa/app/market-units/20239</span>
+        <span><strong>Type:</strong> Property Listing (Market Unit)</span>
+        <span><strong>Date:</strong> March 1, 2026</span>
+        <span><strong>For:</strong> Head Manager, Sakani</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SLIDE 2 — THE SCALE PROBLEM
+     ============================ -->
+<section class="slide slide-white" id="s2" data-theme="dark">
+  <div class="inner">
+    <div class="eyebrow eyebrow-red">Why this matters</div>
+    <h2 class="slide-h2 text-black">This is not a one-page problem.<br/>It affects every listing on Sakani.</h2>
+    <div class="alert-bar">
+      <div class="a-icon">⚠️</div>
+      <p>Image issues are <strong>structural and template-based</strong>. The same broken patterns — no alt text, unoptimised JPEGs, missing dimensions — repeat on every single market unit page. Fix the template once, and every listing improves automatically.</p>
+    </div>
+    <div class="scale-grid">
+      <div class="scale-card">
+        <div class="sc-num">~0</div>
+        <div class="sc-label">Listing images visible in Google Image search today</div>
+      </div>
+      <div class="scale-card">
+        <div class="sc-num">~12MB</div>
+        <div class="sc-label">Estimated image weight per listing page (target: &lt;600KB)</div>
+      </div>
+      <div class="scale-card">
+        <div class="sc-num">4–6s</div>
+        <div class="sc-label">Estimated mobile load time (Google's passing threshold: 2.5s)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SLIDE 3 — AUDIT OVERVIEW
+     ============================ -->
+<section class="slide" id="s3" data-theme="light">
+  <div class="audit-split">
+    <div class="audit-col">
+      <div class="eyebrow eyebrow-blue">Image audit — 10 checks</div>
+      <h2 class="slide-h2 text-black" style="font-size:var(--h3-size);margin-bottom:clamp(.5rem,1.5vw,1rem)">6 out of 10 checks failing</h2>
+      <div class="audit-rows">
+        <div class="audit-row">
+          <div><div class="ar-label">Alt text on photos</div><div class="ar-sub">Describes images for Google</div></div>
+          <span class="status-pill p-red">❌ Missing</span>
+        </div>
+        <div class="audit-row">
+          <div><div class="ar-label">Image format</div><div class="ar-sub">WebP/AVIF vs JPEG</div></div>
+          <span class="status-pill p-red">❌ JPEG only</span>
+        </div>
+        <div class="audit-row">
+          <div><div class="ar-label">Hero image size</div><div class="ar-sub">LCP element — target &lt;200KB</div></div>
+          <span class="status-pill p-red">❌ ~2–3 MB</span>
+        </div>
+        <div class="audit-row">
+          <div><div class="ar-label">Width &amp; height attributes</div><div class="ar-sub">Prevents layout shift (CLS)</div></div>
+          <span class="status-pill p-red">❌ Missing</span>
+        </div>
+        <div class="audit-row">
+          <div><div class="ar-label">Lazy loading (gallery)</div><div class="ar-sub">Load images only when visible</div></div>
+          <span class="status-pill p-orange">⚠️ Missing</span>
+        </div>
+        <div class="audit-row">
+          <div><div class="ar-label">fetchpriority on hero</div><div class="ar-sub">Tells browser to load it first</div></div>
+          <span class="status-pill p-orange">⚠️ Missing</span>
+        </div>
+      </div>
+    </div>
+    <div class="audit-col-right">
+      <div class="score-big">
+        <div class="sb-label" style="color:rgba(255,255,255,.5);font-size:var(--small-size);text-transform:uppercase;letter-spacing:.08em;">Current score</div>
+        <div class="sb-n">40</div>
+        <div class="sb-label" style="color:rgba(255,255,255,.4);">out of 100</div>
+        <div class="score-divider"></div>
+        <div class="score-target">
+          <div class="st-n">78</div>
+          <div class="st-l">Achievable score with fixes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SLIDE 4 — PROBLEM 1: ALT TEXT
+     ============================ -->
+<section class="slide slide-white" id="s4" data-theme="dark">
+  <div class="problem-split">
+    <div class="ps-left" style="position:relative;">
+      <div class="problem-num">01</div>
+      <div class="eyebrow eyebrow-red" style="margin-top:clamp(3rem,6vw,5rem)">Critical issue</div>
+      <h2 class="slide-h2 text-black">Photos have no description — Google can't see them</h2>
+      <p style="font-size:var(--body-size);color:var(--mid);line-height:1.65;margin-bottom:clamp(.5rem,1.5vw,1rem)">Every broker-uploaded photo is invisible to Google Image Search because there's no text label (alt text) telling Google what the image shows.</p>
+      <div style="background:#fff5f5;border:1.5px solid #fca5a5;border-radius:8px;padding:.75rem 1rem;font-size:var(--small-size);color:#7f1d1d;font-weight:600;">
+        💡 Impact: ~0 listing photos appear in Google Image Search today. Competitor platforms (Property Finder, Bayut) dominate image results because their photos are labelled.
+      </div>
+    </div>
+    <div class="ps-right">
+      <div class="before-after">
+        <div class="ba-block">
+          <div class="ba-label ba-before">✗ Now — empty alt, Google ignores image</div>
+          <div class="ba-body">
+            <div class="img-thumb-mock thumb-blue">🏡</div>
+            <div class="code-line"><span class="code-bad">alt=""</span> &larr; blank, Google skips entirely</div>
+            <div class="impact-note impact-bad">Not in Image Search · No keyword signal</div>
+          </div>
+        </div>
+        <div class="ba-block">
+          <div class="ba-label ba-after">✓ After — descriptive, Google indexes it</div>
+          <div class="ba-body">
+            <div class="img-thumb-mock thumb-blue">🏡</div>
+            <div class="code-line"><span class="code-good">alt="3-bed villa exterior, Al Malqa, Riyadh — Sakani"</span></div>
+            <div class="impact-note impact-good">Appears in Image Search · Reinforces local keywords</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SLIDE 5 — PROBLEM 2: FORMAT
+     ============================ -->
+<section class="slide format-slide" id="s5" data-theme="light">
+  <div class="format-inner">
+    <div class="eyebrow eyebrow-red">Critical issue · Problem 02</div>
+    <h2 class="slide-h2 text-white">Photos are in a format 5× heavier than needed</h2>
+    <div class="format-grid">
+      <div class="fmt-card current">
+        <div class="fmt-ext" style="color:#fc8181;">JPEG</div>
+        <div class="fmt-size" style="color:#fc8181;">2.4 MB</div>
+        <div class="fmt-label" style="color:rgba(255,255,255,.5);">Broker upload, uncompressed</div>
+        <div class="fmt-tag tag-current">In use now</div>
+      </div>
+      <div class="fmt-card better">
+        <div class="fmt-ext" style="color:rgba(255,255,255,.8);">WebP</div>
+        <div class="fmt-size" style="color:rgba(255,255,255,.8);">~480 KB</div>
+        <div class="fmt-label" style="color:rgba(255,255,255,.5);">Same visual quality, 80% smaller</div>
+        <div class="fmt-tag tag-good">Recommended</div>
+      </div>
+      <div class="fmt-card best">
+        <div class="fmt-ext" style="color:#68d391;">AVIF</div>
+        <div class="fmt-size" style="color:#68d391;">~310 KB</div>
+        <div class="fmt-label" style="color:rgba(255,255,255,.5);">Best compression, 93% browser support</div>
+        <div class="fmt-tag tag-best">Best option</div>
+      </div>
+      <div class="fmt-card future">
+        <div class="fmt-ext" style="color:rgba(255,255,255,.3);">JPEG XL</div>
+        <div class="fmt-size" style="color:rgba(255,255,255,.2);">~260 KB</div>
+        <div class="fmt-label" style="color:rgba(255,255,255,.3);">Coming to Chrome — not yet stable</div>
+        <div class="fmt-tag tag-soon">Monitor</div>
+      </div>
+    </div>
+    <div class="savings-highlight">
+      <div class="sh-num">95%</div>
+      <div class="sh-text">Estimated reduction in total image weight per listing page. <strong>From ~12–18 MB down to under 600 KB</strong> — with zero visible quality loss for the buyer. An image CDN (Cloudinary, Imgix, AWS) can convert and serve WebP automatically on upload, requiring no action from brokers.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SLIDE 6 — PROBLEM 3: LCP
+     ============================ -->
+<section class="slide slide-white" id="s6" data-theme="dark">
+  <div class="lcp-inner">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);align-items:start;">
+      <div>
+        <div class="eyebrow eyebrow-red">Critical issue · Problem 03</div>
+        <h2 class="slide-h2 text-black">The main photo loads too slowly — failing Google's speed test</h2>
+        <p style="font-size:var(--body-size);color:var(--mid);line-height:1.65;margin-bottom:.75rem;">Google measures how long the first large photo takes to appear (LCP). It's an official ranking factor. A failing score means lower placement in mobile search results — where most Saudi property searches happen.</p>
+        <div class="cwv-badges">
+          <div class="cwv-badge"><div class="dot dot-red"></div> LCP now: ~6s (Poor)</div>
+          <div class="cwv-badge" style="border-color:var(--green);"><div class="dot dot-green"></div> LCP target: &lt;2.5s (Good)</div>
+        </div>
+      </div>
+      <div class="lcp-compare" style="display:block;">
+        <div class="lcp-box" style="margin-bottom:var(--gap);">
+          <div class="lcp-box-label lb-before">✗ Now — slow, unoptimised</div>
+          <div class="timeline">
+            <div class="tl-row">
+              <div class="tl-label">HTML loads</div>
+              <div class="tl-track"><div class="tl-bar" style="width:12%;background:#94a3b8;"></div></div>
+              <div class="tl-val" style="color:var(--mid)">0.3s</div>
+            </div>
+            <div class="tl-row">
+              <div class="tl-label">JS runs</div>
+              <div class="tl-track"><div class="tl-bar" style="width:45%;background:#f59e0b;"></div></div>
+              <div class="tl-val" style="color:var(--orange)">1.5s</div>
+            </div>
+            <div class="tl-row">
+              <div class="tl-label" style="font-weight:700;color:var(--red);">Hero JPEG</div>
+              <div class="tl-track"><div class="tl-bar" style="width:100%;background:var(--red);"></div></div>
+              <div class="tl-val c-red" style="color:var(--red)">~6s</div>
+            </div>
+          </div>
+          <div class="lcp-verdict lv-bad">Google rating: POOR — rankings penalised</div>
+        </div>
+        <div class="lcp-box">
+          <div class="lcp-box-label lb-after">✓ After — WebP + fetchpriority</div>
+          <div class="timeline">
+            <div class="tl-row">
+              <div class="tl-label">HTML loads</div>
+              <div class="tl-track"><div class="tl-bar" style="width:12%;background:#94a3b8;"></div></div>
+              <div class="tl-val" style="color:var(--mid)">0.3s</div>
+            </div>
+            <div class="tl-row">
+              <div class="tl-label">JS runs</div>
+              <div class="tl-track"><div class="tl-bar" style="width:25%;background:#f59e0b;"></div></div>
+              <div class="tl-val" style="color:var(--orange)">0.8s</div>
+            </div>
+            <div class="tl-row">
+              <div class="tl-label" style="font-weight:700;color:var(--green);">Hero WebP</div>
+              <div class="tl-track"><div class="tl-bar" style="width:55%;background:var(--green);"></div></div>
+              <div class="tl-val" style="color:var(--green)">1.8s</div>
+            </div>
+          </div>
+          <div class="lcp-verdict lv-good">Google rating: GOOD — rankings improve</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SLIDE 7 — PROBLEM 4: CLS
+     ============================ -->
+<section class="slide slide-light" id="s7" data-theme="dark">
+  <div class="inner">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);height:100%;align-items:center;">
+      <div>
+        <div class="eyebrow eyebrow-orange">High priority · Problem 04</div>
+        <h2 class="slide-h2 text-black">Photos cause the page to jump as they load</h2>
+        <p style="font-size:var(--body-size);color:var(--mid);line-height:1.65;margin-bottom:.75rem;">Without declared dimensions, the browser doesn't reserve space for images. Content loads first, then photos pop in and push everything down — including the "Apply" button the buyer was about to tap.</p>
+        <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:8px;padding:.75rem 1rem;font-size:var(--small-size);line-height:1.6;">
+          <strong>Fix:</strong> Add <code style="background:#f3f4f6;padding:1px 5px;border-radius:3px;font-family:monospace;">width</code> and <code style="background:#f3f4f6;padding:1px 5px;border-radius:3px;font-family:monospace;">height</code> attributes to every image tag. The browser pre-reserves the correct space before the image downloads. One-line fix per image.
+        </div>
+      </div>
+      <div class="cls-screens">
+        <div class="cls-phone">
+          <div class="cls-phone-bar"><span style="color:var(--red)">✗ Without dimensions</span></div>
+          <div class="cls-phone-body">
+            <div class="ph-img-dashed ph-img-slot">⏳ loading…</div>
+            <div class="ph-price">Price: 1,200,000 SAR</div>
+            <div class="ph-cta">Apply Now</div>
+            <div class="shift-arrow">↕ IMAGE POPS IN — shifts everything!</div>
+            <div class="ph-img-slot thumb-blue">🏡</div>
+            <div class="ph-price">Price: 1,200,000 SAR ← shifted</div>
+            <div class="ph-cta-shifted">Apply Now ← user missed tap!</div>
+          </div>
+        </div>
+        <div class="cls-phone">
+          <div class="cls-phone-bar"><span style="color:var(--green)">✓ With width/height</span></div>
+          <div class="cls-phone-body">
+            <div class="ph-img-dashed ph-img-slot" style="border-color:#a7f3d0;background:#f0fdf4;color:var(--green);">📐 space reserved</div>
+            <div class="ph-price">Price: 1,200,000 SAR</div>
+            <div class="ph-cta">Apply Now</div>
+            <div class="no-shift-line">↑ stays in place</div>
+            <div class="ph-img-slot thumb-blue">🏡</div>
+            <div class="ph-price" style="color:var(--green)">Price: 1,200,000 SAR ✓</div>
+            <div class="ph-cta">Apply Now ✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SLIDE 8 — PROBLEM 5: LAZY LOADING
+     ============================ -->
+<section class="slide" id="s8" data-theme="light">
+  <div class="lazy-inner">
+    <div class="eyebrow eyebrow-white">High priority · Problem 05</div>
+    <h2 class="slide-h2 text-white">All 12 gallery photos download at once — even ones never seen</h2>
+    <div class="lazy-diagram">
+      <div class="lazy-col">
+        <div class="lazy-col-label" style="color:#fc8181;">✗ Now — everything loads immediately</div>
+        <div class="photo-row pr-loading"><div class="pr-icon">🏡</div><div class="pr-text">Hero photo (above fold)</div><div class="pr-size">2.4 MB</div></div>
+        <div class="photo-row pr-loading"><div class="pr-icon">🛋️</div><div class="pr-text">Living room (not visible yet)</div><div class="pr-size">1.8 MB</div></div>
+        <div class="photo-row pr-loading"><div class="pr-icon">🍳</div><div class="pr-text">Kitchen (not visible yet)</div><div class="pr-size">1.5 MB</div></div>
+        <div class="photo-row pr-loading"><div class="pr-icon">🛏️</div><div class="pr-text">Bedroom (not visible yet)</div><div class="pr-size">1.2 MB</div></div>
+        <div class="photo-row pr-loading"><div class="pr-icon">🌿</div><div class="pr-text">Garden · Pool · +7 more…</div><div class="pr-size">~8 MB</div></div>
+        <div class="lazy-total lt-bad">Total downloaded: ~15 MB before buyer sees anything</div>
+      </div>
+      <div class="lazy-col">
+        <div class="lazy-col-label" style="color:#68d391;">✓ After — hero first, gallery on scroll</div>
+        <div class="photo-row pr-hero"><div class="pr-icon">🏡</div><div class="pr-text">Hero photo — fetchpriority="high"</div><div class="pr-size">180 KB</div></div>
+        <div class="photo-row pr-lazy"><div class="pr-icon">🛋️</div><div class="pr-text">Living room — loading="lazy"</div><div class="pr-size">deferred</div></div>
+        <div class="photo-row pr-deferred"><div class="pr-icon">🍳</div><div class="pr-text">Kitchen — loads when scrolled to</div><div class="pr-size">deferred</div></div>
+        <div class="photo-row pr-deferred"><div class="pr-icon">🛏️</div><div class="pr-text">Bedroom — loads when scrolled to</div><div class="pr-size">deferred</div></div>
+        <div class="photo-row pr-deferred"><div class="pr-icon">🌿</div><div class="pr-text">Garden · Pool · +7 more…</div><div class="pr-size">deferred</div></div>
+        <div class="lazy-total lt-good">Initial load: 180 KB — page feels instant</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SLIDE 9 — WHAT WE GAIN
+     ============================ -->
+<section class="slide" id="s9" data-theme="light">
+  <div class="gain-inner">
+    <div class="eyebrow eyebrow-white">The opportunity</div>
+    <h2 class="slide-h2 text-white">What Sakani gains by fixing images</h2>
+    <div class="gain-grid">
+      <div class="gain-card">
+        <div class="gc-icon">🚀</div>
+        <h3>3× faster page load on mobile</h3>
+        <p>WebP + lazy loading cuts total image weight from ~15MB to under 600KB. Pages load in under 2 seconds on a standard Saudi 4G connection.</p>
+      </div>
+      <div class="gain-card">
+        <div class="gc-icon">📈</div>
+        <h3>Higher rankings in Google Search</h3>
+        <p>LCP, CLS, and INP are official Google ranking signals. Passing all three moves listing pages up in mobile search results — where property searches happen.</p>
+      </div>
+      <div class="gain-card">
+        <div class="gc-icon">🖼️</div>
+        <h3>Listing photos in Google Image Search</h3>
+        <p>With alt text, property photos become discoverable in Google Images — a free traffic channel currently receiving zero benefit from Sakani's listing catalogue.</p>
+      </div>
+      <div class="gain-card">
+        <div class="gc-icon">💰</div>
+        <h3>Lower CDN and hosting costs</h3>
+        <p>Serving 95% smaller images reduces bandwidth costs across thousands of daily listing page views — a meaningful operational saving at platform scale.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SLIDE 10 — NEXT STEPS
+     ============================ -->
+<section class="slide slide-white" id="s10" data-theme="dark">
+  <div class="steps-inner">
+    <div class="eyebrow eyebrow-blue">Action plan</div>
+    <h2 class="slide-h2 text-black">7 fixes — in order of impact</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-n">1</div>
+        <div class="step-text"><strong>Set up WebP auto-conversion via image CDN</strong><span>Cloudinary / Imgix converts broker uploads automatically — no broker action needed</span></div>
+        <div class="step-effort ef-now">Highest priority</div>
+      </div>
+      <div class="step-card">
+        <div class="step-n">2</div>
+        <div class="step-text"><strong>Add fetchpriority="high" to hero image</strong><span>One attribute on the main photo — directly improves Google's LCP score</span></div>
+        <div class="step-effort ef-week">1 week</div>
+      </div>
+      <div class="step-card">
+        <div class="step-n">3</div>
+        <div class="step-text"><strong>Add loading="lazy" to all gallery photos</strong><span>Defers off-screen images — page feels instant on first load</span></div>
+        <div class="step-effort ef-week">1 week</div>
+      </div>
+      <div class="step-card">
+        <div class="step-n">4</div>
+        <div class="step-text"><strong>Add width &amp; height to all listing images</strong><span>Prevents layout shift (CLS) — browser reserves exact space before image loads</span></div>
+        <div class="step-effort ef-week">1 week</div>
+      </div>
+      <div class="step-card">
+        <div class="step-n">5</div>
+        <div class="step-text"><strong>Auto-generate alt text from listing data</strong><span>"{type} {feature}, {neighborhood}, {city} — Sakani" — no broker action required</span></div>
+        <div class="step-effort ef-month">2 weeks</div>
+      </div>
+      <div class="step-card">
+        <div class="step-n">6</div>
+        <div class="step-text"><strong>Auto-rename photo files on broker upload</strong><span>villa-al-malqa-riyadh-exterior.webp instead of IMG_7823.jpg</span></div>
+        <div class="step-effort ef-month">2 weeks</div>
+      </div>
+      <div class="step-card" style="grid-column:1/-1;">
+        <div class="step-n">7</div>
+        <div class="step-text"><strong>Implement srcset for responsive images — serve correct size per device</strong><span>400px for mobile · 800px for tablet · 1200px for desktop. Avoids sending 1200px photos to a 375px phone screen.</span></div>
+        <div class="step-effort ef-month">1 month</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SLIDE 11 — CLOSING
+     ============================ -->
+<section class="slide" id="s11" data-theme="dark">
+  <div class="closing-split">
+    <div class="closing-left">
+      <div class="eyebrow eyebrow-white">Before vs. after</div>
+      <h2 class="slide-h2 text-white" style="margin-bottom:clamp(1rem,3vw,2.5rem)">The numbers</h2>
+      <div class="closing-metric">
+        <div class="cm-row">
+          <div style="display:flex;gap:.75rem;align-items:baseline;">
+            <span class="cmr-n now">12MB</span>
+            <span style="color:rgba(255,255,255,.3);font-size:clamp(1.5rem,3vw,2.5rem);font-weight:700;">→</span>
+            <span class="cmr-n after">600KB</span>
+          </div>
+          <div class="cmr-l lbl">Image weight per listing page</div>
+        </div>
+        <div class="cm-row">
+          <div style="display:flex;gap:.75rem;align-items:baseline;">
+            <span class="cmr-n now">~6s</span>
+            <span style="color:rgba(255,255,255,.3);font-size:clamp(1.5rem,3vw,2.5rem);font-weight:700;">→</span>
+            <span class="cmr-n after">&lt;2s</span>
+          </div>
+          <div class="cmr-l lbl">Mobile page load time (LCP)</div>
+        </div>
+        <div class="cm-row">
+          <div style="display:flex;gap:.75rem;align-items:baseline;">
+            <span class="cmr-n now">0</span>
+            <span style="color:rgba(255,255,255,.3);font-size:clamp(1.5rem,3vw,2.5rem);font-weight:700;">→</span>
+            <span class="cmr-n after">1,000s</span>
+          </div>
+          <div class="cmr-l lbl">Listing photos visible in Google Image Search</div>
+        </div>
+      </div>
+    </div>
+    <div class="closing-right">
+      <div class="eyebrow eyebrow-blue">Key takeaway</div>
+      <h2 class="slide-h2 text-black">Fix the template.<br/>Every listing improves.</h2>
+      <p style="font-size:var(--body-size);color:var(--mid);line-height:1.65;margin:clamp(.5rem,1.5vw,1rem) 0;">None of these fixes require broker or user action. They are engineering and infrastructure changes — applied once to the listing template — that automatically benefit every market unit on the platform.</p>
+      <div class="cta-box">
+        <h3>Recommended first step</h3>
+        <p>Run the listing URL through <strong>Google PageSpeed Insights</strong> (pagespeed.web.dev) to get the exact LCP and CLS scores. This takes 5 minutes and provides the baseline data needed to prioritise the engineering sprint.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const navDots = document.getElementById('navDots');
+const counter = document.getElementById('slideCounter');
+const total   = slides.length;
+let current   = 0;
+
+// Build nav dots
+slides.forEach((_, i) => {
+  const dot = document.createElement('button');
+  dot.className = 'nav-dot';
+  dot.setAttribute('aria-label', `Slide ${i+1}`);
+  dot.onclick = () => slides[i].scrollIntoView({ behavior: 'smooth' });
+  navDots.appendChild(dot);
+});
+
+function updateUI() {
+  const dots = navDots.querySelectorAll('.nav-dot');
+  const theme = slides[current].dataset.theme;
+  const isLight = theme === 'light';
+
+  dots.forEach((d, i) => {
+    d.className = 'nav-dot' + (isLight ? ' light' : '') + (i === current ? ' active' : '');
+  });
+  counter.textContent = `${current + 1} / ${total}`;
+  counter.className = 'slide-counter' + (isLight ? ' light' : '');
+}
+
+// Intersection Observer — track active slide
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.intersectionRatio >= 0.5) {
+      current = Array.from(slides).indexOf(e.target);
+      updateUI();
+    }
+  });
+}, { threshold: 0.5 });
+
+slides.forEach(s => observer.observe(s));
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+    e.preventDefault();
+    if (current < total - 1) slides[current + 1].scrollIntoView({ behavior: 'smooth' });
+  }
+  if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+    e.preventDefault();
+    if (current > 0) slides[current - 1].scrollIntoView({ behavior: 'smooth' });
+  }
+});
+
+updateUI();
+</script>
+</body>
+</html>
