@@ -1,0 +1,2015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sakani – Workflow & Experience Acceleration Initiative</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES — NHCI BRAND THEME
+           Primary: #133C2B (dark green) + #FFFFFF (white)
+           =========================================== */
+        :root {
+            --green-dark:    #133C2B;
+            --green-mid:     #0a6b1f;
+            --green-subtle:  #0d5218;
+            --green-accent:  #1db954;
+            --white:         #ffffff;
+            --white-80:      rgba(255,255,255,0.80);
+            --white-60:      rgba(255,255,255,0.60);
+            --white-40:      rgba(255,255,255,0.40);
+            --white-20:      rgba(255,255,255,0.20);
+            --white-10:      rgba(255,255,255,0.10);
+            --white-05:      rgba(255,255,255,0.05);
+            --red:           #ef4444;
+
+            /* Typography — all clamp() for responsive scaling */
+            --font-display: 'Plus Jakarta Sans', sans-serif;
+            --font-body:    'Inter', sans-serif;
+            --title-size:   clamp(2.25rem, 5.5vw, 4.75rem);
+            --h2-size:      clamp(1.5rem,  3.5vw, 2.75rem);
+            --h3-size:      clamp(1.05rem, 2vw,   1.75rem);
+            --body-size:    clamp(0.8rem,  1.3vw, 1.05rem);
+            --small-size:   clamp(0.7rem,  1vw,   0.875rem);
+            --label-size:   clamp(0.6rem,  0.75vw,0.72rem);
+
+            /* Spacing — all clamp() */
+            --slide-padding: clamp(2rem, 5vw, 5rem);
+            --content-gap:   clamp(1rem, 2.5vw, 2.5rem);
+            --element-gap:   clamp(0.4rem, 1vw,  1rem);
+
+            /* Animation */
+            --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --dur-fast:  0.4s;
+            --dur-norm:  0.7s;
+        }
+
+        /* ===========================================
+           RESET & BASE
+           =========================================== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            height: 100%;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--green-dark);
+            color: var(--white);
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        /* ===========================================
+           SLIDE SYSTEM — VIEWPORT FITTING (CRITICAL)
+           =========================================== */
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ===========================================
+           DECORATIVE BG ELEMENTS
+           =========================================== */
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .bg-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--white-05) 1px, transparent 1px),
+                linear-gradient(90deg, var(--white-05) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+        }
+
+        /* ===========================================
+           NAVIGATION
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 2px;
+            background: var(--green-accent);
+            transition: width 0.4s var(--ease-expo);
+            z-index: 100;
+        }
+
+        .nav-dots {
+            position: fixed;
+            right: clamp(1rem, 2.5vw, 2rem);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--white-30, rgba(255,255,255,0.3));
+            cursor: pointer;
+            transition: all 0.3s var(--ease-expo);
+            border: none;
+            padding: 0;
+        }
+
+        .nav-dot.active {
+            background: var(--white);
+            height: 20px;
+            border-radius: 3px;
+        }
+
+        .slide-counter {
+            position: fixed;
+            bottom: clamp(1rem, 2vw, 1.5rem);
+            right: clamp(1rem, 2.5vw, 2rem);
+            font-size: var(--small-size);
+            color: var(--white-40);
+            letter-spacing: 0.05em;
+            z-index: 100;
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition:
+                opacity var(--dur-norm) var(--ease-expo),
+                transform var(--dur-norm) var(--ease-expo);
+        }
+
+        .slide.visible .reveal               { opacity: 1; transform: translateY(0); }
+        .slide.visible .reveal:nth-child(1)  { transition-delay: 0.05s; }
+        .slide.visible .reveal:nth-child(2)  { transition-delay: 0.15s; }
+        .slide.visible .reveal:nth-child(3)  { transition-delay: 0.25s; }
+        .slide.visible .reveal:nth-child(4)  { transition-delay: 0.35s; }
+        .slide.visible .reveal:nth-child(5)  { transition-delay: 0.45s; }
+        .slide.visible .reveal:nth-child(6)  { transition-delay: 0.55s; }
+        .slide.visible .reveal:nth-child(7)  { transition-delay: 0.65s; }
+
+        /* ===========================================
+           SHARED TYPOGRAPHY
+           =========================================== */
+        h1 {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-family: var(--font-display);
+            font-size: var(--h2-size);
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+
+        p { font-size: var(--body-size); line-height: 1.65; color: var(--white-80); }
+
+        .label {
+            font-size: var(--label-size);
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--green-accent);
+        }
+
+        .divider {
+            width: 40px;
+            height: 3px;
+            background: var(--green-accent);
+            border-radius: 2px;
+            margin: clamp(0.6rem, 1.2vw, 1.1rem) 0;
+        }
+
+        /* ===========================================
+           SLIDE 1 — TITLE
+           =========================================== */
+        #slide-1 .bg-glow-1 {
+            width: clamp(300px, 55vw, 650px);
+            height: clamp(300px, 55vw, 650px);
+            background: radial-gradient(circle, rgba(29,185,84,0.12) 0%, transparent 65%);
+            top: -10%; right: -5%;
+        }
+
+        #slide-1 .bg-glow-2 {
+            width: clamp(200px, 35vw, 420px);
+            height: clamp(200px, 35vw, 420px);
+            background: radial-gradient(circle, rgba(5,68,19,0.7) 0%, transparent 70%);
+            bottom: -5%; left: 8%;
+        }
+
+        #slide-1 .eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: clamp(1rem, 2vw, 2rem);
+        }
+
+        #slide-1 .eyebrow .line {
+            width: 32px;
+            height: 1px;
+            background: var(--green-accent);
+        }
+
+        #slide-1 h1 .highlight { color: var(--green-accent); }
+
+        #slide-1 .subtitle {
+            margin-top: clamp(0.75rem, 1.5vw, 1.25rem);
+            font-size: clamp(0.85rem, 1.8vw, 1.2rem);
+            color: var(--white-60);
+            font-weight: 300;
+        }
+
+        #slide-1 .meta-row {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.75rem, 2vw, 1.75rem);
+            margin-top: clamp(2rem, 4vw, 3.5rem);
+        }
+
+        #slide-1 .meta-sep { width: 1px; height: 18px; background: var(--white-20); }
+
+        #slide-1 .meta-row span {
+            font-size: var(--small-size);
+            color: var(--white-40);
+            letter-spacing: 0.05em;
+        }
+
+        /* ===========================================
+           SLIDE 2 — EXECUTIVE SUMMARY
+           =========================================== */
+        #slide-2 .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--element-gap);
+            margin-top: clamp(1.25rem, 2.5vw, 2rem);
+        }
+
+        #slide-2 .summary-card {
+            background: var(--white-05);
+            border: 1px solid var(--white-10);
+            border-radius: 12px;
+            padding: clamp(1rem, 2vw, 1.75rem);
+        }
+
+        #slide-2 .big-num {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 800;
+            color: var(--green-accent);
+            line-height: 1;
+        }
+
+        #slide-2 .summary-card p {
+            margin-top: 0.4rem;
+            font-size: var(--small-size);
+            color: var(--white-60);
+            line-height: 1.5;
+        }
+
+        /* ===========================================
+           SLIDE 3 — STRATEGIC CONTEXT
+           =========================================== */
+        #slide-3 {
+            background: linear-gradient(135deg, var(--green-dark) 0%, #071f0c 100%);
+        }
+
+        #slide-3 .context-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: var(--content-gap);
+            align-items: center;
+            margin-top: clamp(1.25rem, 2.5vw, 2rem);
+        }
+
+        #slide-3 .big-statement {
+            font-family: var(--font-display);
+            font-size: clamp(1rem, 2.2vw, 1.85rem);
+            font-weight: 300;
+            line-height: 1.55;
+            color: var(--white-80);
+        }
+
+        #slide-3 .big-statement strong {
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        #slide-3 .pillars {
+            display: flex;
+            flex-direction: column;
+            gap: var(--element-gap);
+        }
+
+        #slide-3 .pillar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: clamp(0.6rem, 1.2vw, 0.9rem) clamp(0.9rem, 1.8vw, 1.4rem);
+            background: var(--white-05);
+            border: 1px solid var(--white-10);
+            border-left: 3px solid var(--green-accent);
+            border-radius: 8px;
+            font-size: var(--small-size);
+            color: var(--white-80);
+        }
+
+        /* ===========================================
+           SLIDE 4 — CURRENT WORKFLOW
+           =========================================== */
+        #slide-4 .timeline {
+            display: flex;
+            gap: 0;
+            margin: clamp(1.25rem, 2.5vw, 2rem) 0;
+        }
+
+        #slide-4 .t-step {
+            flex: 1;
+            background: var(--white-05);
+            border: 1px solid var(--white-10);
+            padding: clamp(0.7rem, 1.4vw, 1.1rem) clamp(0.6rem, 1.2vw, 0.9rem);
+            text-align: center;
+            position: relative;
+        }
+
+        #slide-4 .t-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--green-accent);
+            font-size: 1.1rem;
+            z-index: 1;
+        }
+
+        #slide-4 .t-week {
+            font-size: var(--label-size);
+            font-weight: 700;
+            color: var(--green-accent);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 0.3em;
+        }
+
+        #slide-4 .t-task {
+            font-size: var(--small-size);
+            color: var(--white-80);
+            font-weight: 500;
+        }
+
+        #slide-4 .pain-points {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--element-gap);
+        }
+
+        #slide-4 .pain-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            font-size: var(--small-size);
+            color: var(--white-60);
+        }
+
+        #slide-4 .pain-item::before {
+            content: '×';
+            color: var(--red);
+            font-weight: 700;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+
+        /* ===========================================
+           SLIDE 5 — CORE CHALLENGES
+           =========================================== */
+        #slide-5 .challenges {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.7rem, 1.4vw, 1.2rem);
+            margin-top: clamp(1.25rem, 2.5vw, 2rem);
+        }
+
+        #slide-5 .ch-card {
+            background: var(--white-05);
+            border: 1px solid var(--white-10);
+            border-radius: 12px;
+            padding: clamp(0.9rem, 1.8vw, 1.5rem);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #slide-5 .ch-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--green-accent);
+        }
+
+        #slide-5 .ch-num {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 3vw, 2.75rem);
+            font-weight: 800;
+            color: var(--white-10);
+            line-height: 1;
+            margin-bottom: 0.2em;
+        }
+
+        #slide-5 .ch-title {
+            font-family: var(--font-display);
+            font-size: clamp(0.82rem, 1.4vw, 1.05rem);
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 0.4rem;
+        }
+
+        #slide-5 .ch-desc {
+            font-size: var(--small-size);
+            color: var(--white-60);
+            line-height: 1.5;
+        }
+
+        /* ===========================================
+           SLIDE 6 — MODERN PRODUCT MODEL
+           =========================================== */
+        #slide-6 .comparison {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: clamp(0.75rem, 1.8vw, 2rem);
+            align-items: center;
+            margin-top: clamp(1.25rem, 2.5vw, 2rem);
+        }
+
+        #slide-6 .model-col {
+            background: var(--white-05);
+            border: 1px solid var(--white-10);
+            border-radius: 12px;
+            padding: clamp(1rem, 2vw, 1.75rem);
+        }
+
+        #slide-6 .model-col.old   { border-color: rgba(239,68,68,0.25); }
+        #slide-6 .model-col.fresh { border-color: rgba(29,185,84,0.3); background: rgba(29,185,84,0.04); }
+
+        #slide-6 .m-label {
+            font-size: var(--label-size);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.85rem;
+        }
+
+        #slide-6 .model-col.old .m-label   { color: var(--red); }
+        #slide-6 .model-col.fresh .m-label { color: var(--green-accent); }
+
+        #slide-6 .flow-step {
+            font-size: var(--small-size);
+            color: var(--white-70, rgba(255,255,255,0.7));
+            padding: 0.4em 0;
+            border-bottom: 1px solid var(--white-05);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #slide-6 .flow-step:last-child { border-bottom: none; }
+
+        #slide-6 .vs {
+            width: clamp(38px, 5vw, 52px);
+            height: clamp(38px, 5vw, 52px);
+            background: var(--white-10);
+            border: 1px solid var(--white-20);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: clamp(0.65rem, 0.9vw, 0.8rem);
+            font-weight: 700;
+            color: var(--white-60);
+            flex-shrink: 0;
+        }
+
+        /* ===========================================
+           SLIDE 7 — 90-DAY PILOT
+           =========================================== */
+        #slide-7 {
+            background: linear-gradient(135deg, #065c17 0%, var(--green-dark) 60%);
+        }
+
+        #slide-7 .pilot-meta {
+            display: flex;
+            gap: clamp(1.5rem, 4vw, 3rem);
+            margin: clamp(0.75rem, 1.5vw, 1.25rem) 0 clamp(1rem, 2vw, 1.5rem);
+        }
+
+        #slide-7 .p-meta-label {
+            font-size: var(--label-size);
+            color: var(--white-40);
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 0.2rem;
+        }
+
+        #slide-7 .p-meta-val {
+            font-family: var(--font-display);
+            font-size: clamp(0.85rem, 1.5vw, 1.2rem);
+            font-weight: 700;
+        }
+
+        #slide-7 .objectives {
+            display: flex;
+            flex-direction: column;
+            gap: var(--element-gap);
+        }
+
+        #slide-7 .obj {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.75rem, 1.5vw, 1.25rem);
+            padding: clamp(0.55rem, 1.1vw, 0.85rem) clamp(1rem, 2vw, 1.5rem);
+            background: var(--white-05);
+            border: 1px solid var(--white-10);
+            border-radius: 8px;
+        }
+
+        #slide-7 .obj-n {
+            font-family: var(--font-display);
+            font-size: clamp(0.95rem, 1.8vw, 1.5rem);
+            font-weight: 800;
+            color: var(--green-accent);
+            min-width: 1.8ch;
+            flex-shrink: 0;
+        }
+
+        #slide-7 .obj-t {
+            font-size: var(--body-size);
+            color: var(--white-80);
+        }
+
+        /* ===========================================
+           SLIDE SKILLS — POSSIBLE SKILLS TO USE/BUILD
+           =========================================== */
+        #slide-skills {
+            background: var(--green-dark);
+        }
+
+        #slide-skills .idea-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.3em 0.85em;
+            background: rgba(251,191,36,0.08);
+            border: 1px solid rgba(251,191,36,0.3);
+            border-radius: 100px;
+            font-size: var(--label-size);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #fbbf24;
+            margin-bottom: clamp(0.6rem, 1.2vw, 1rem);
+        }
+
+        #slide-skills .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.55rem, 1.1vw, 0.9rem);
+            margin-top: clamp(0.75rem, 1.5vw, 1.25rem);
+        }
+
+        #slide-skills .sk-card {
+            background: rgba(251,191,36,0.03);
+            border: 1px dashed rgba(251,191,36,0.2);
+            border-radius: 12px;
+            padding: clamp(0.8rem, 1.6vw, 1.25rem);
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            transition: border-color 0.3s ease, background 0.3s ease;
+        }
+
+        #slide-skills .sk-card:hover {
+            background: rgba(251,191,36,0.06);
+            border-color: rgba(251,191,36,0.4);
+        }
+
+        #slide-skills .sk-icon {
+            font-size: clamp(1rem, 1.8vw, 1.4rem);
+            margin-bottom: 0.1rem;
+        }
+
+        #slide-skills .sk-name {
+            font-family: var(--font-display);
+            font-size: clamp(0.78rem, 1.3vw, 1rem);
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        #slide-skills .sk-desc {
+            font-size: var(--small-size);
+            color: var(--white-60);
+            line-height: 1.45;
+        }
+
+        #slide-skills .sk-num {
+            font-family: var(--font-display);
+            font-size: clamp(0.6rem, 0.9vw, 0.72rem);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: rgba(251,191,36,0.5);
+            text-transform: uppercase;
+            margin-bottom: 0.1rem;
+        }
+
+        #slide-skills .sk-test {
+            margin-top: auto;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(251,191,36,0.12);
+            font-size: calc(var(--small-size) * 0.92);
+            color: rgba(251,191,36,0.6);
+            line-height: 1.4;
+        }
+
+        #slide-skills .sk-test strong {
+            color: rgba(251,191,36,0.85);
+            font-weight: 600;
+        }
+
+        /* Cards already started get a subtle green tint */
+        #slide-skills .sk-card.proven {
+            background: rgba(29,185,84,0.04);
+            border-color: rgba(29,185,84,0.2);
+        }
+
+        #slide-skills .sk-card.proven .sk-num { color: rgba(29,185,84,0.6); }
+        #slide-skills .sk-card.proven .sk-test { border-color: rgba(29,185,84,0.15); color: rgba(29,185,84,0.7); }
+        #slide-skills .sk-card.proven .sk-test strong { color: rgba(29,185,84,0.9); }
+
+        #slide-skills .disclaimer {
+            margin-top: clamp(0.65rem, 1.3vw, 1rem);
+            padding: clamp(0.6rem, 1.2vw, 0.9rem) clamp(1.25rem, 2.5vw, 1.75rem);
+            background: rgba(251,191,36,0.05);
+            border: 1px solid rgba(251,191,36,0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: var(--small-size);
+            color: rgba(251,191,36,0.7);
+        }
+
+        /* ===========================================
+           SLIDE 8 — ENABLING TOOLS
+           =========================================== */
+        #slide-8 .tools {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.7rem, 1.4vw, 1.2rem);
+            margin-top: clamp(1.25rem, 2.5vw, 1.75rem);
+        }
+
+        #slide-8 .tool {
+            background: var(--white-05);
+            border: 1px solid var(--white-10);
+            border-radius: 12px;
+            padding: clamp(0.9rem, 1.8vw, 1.5rem);
+            display: flex;
+            gap: clamp(0.7rem, 1.4vw, 1.2rem);
+            align-items: flex-start;
+            transition: border-color 0.3s ease;
+        }
+
+        #slide-8 .tool:hover { border-color: rgba(29,185,84,0.35); }
+
+        #slide-8 .tool-icon {
+            width: clamp(32px, 4vw, 44px);
+            height: clamp(32px, 4vw, 44px);
+            border-radius: 8px;
+            background: var(--white-10);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+            flex-shrink: 0;
+        }
+
+        #slide-8 .tool-name {
+            font-family: var(--font-display);
+            font-size: clamp(0.82rem, 1.35vw, 1.05rem);
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        #slide-8 .tool-desc {
+            font-size: var(--small-size);
+            color: var(--white-60);
+            line-height: 1.5;
+        }
+
+        /* ===========================================
+           SLIDE 9 — ROI
+           =========================================== */
+        #slide-9 .roi-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--content-gap);
+            margin-top: clamp(1.5rem, 3vw, 2.25rem);
+        }
+
+        #slide-9 .roi-heading {
+            font-size: clamp(0.7rem, 1.1vw, 0.85rem);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: clamp(0.75rem, 1.5vw, 1.2rem);
+        }
+
+        #slide-9 .reduce .roi-heading { color: var(--red); }
+        #slide-9 .increase .roi-heading { color: var(--green-accent); }
+
+        #slide-9 .roi-item {
+            font-size: var(--small-size);
+            color: var(--white-70, rgba(255,255,255,0.7));
+            padding: 0.45em 0;
+            border-bottom: 1px solid var(--white-05);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #slide-9 .roi-item:last-child { border-bottom: none; }
+
+        #slide-9 .reduce .roi-item::before  { content: '↓'; color: var(--red);   font-weight: 700; }
+        #slide-9 .increase .roi-item::before { content: '↑'; color: var(--green-accent); font-weight: 700; }
+
+        #slide-9 .cost-bar {
+            grid-column: 1 / -1;
+            background: rgba(29,185,84,0.07);
+            border: 1px solid rgba(29,185,84,0.22);
+            border-radius: 12px;
+            padding: clamp(1rem, 2vw, 1.5rem);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        #slide-9 .cost-num {
+            font-family: var(--font-display);
+            font-size: clamp(1.75rem, 4vw, 3.5rem);
+            font-weight: 800;
+            color: var(--green-accent);
+            line-height: 1;
+        }
+
+        #slide-9 .cost-sub {
+            font-size: var(--label-size);
+            color: var(--white-40);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 0.2rem;
+        }
+
+        #slide-9 .cost-note {
+            font-size: var(--small-size);
+            color: var(--white-60);
+            max-width: 380px;
+            line-height: 1.5;
+        }
+
+        /* ===========================================
+           SLIDE EXAMPLES — REAL PROTOTYPES DONE
+           =========================================== */
+        #slide-examples {
+            background: linear-gradient(135deg, var(--green-dark) 0%, #071f0c 100%);
+        }
+
+        #slide-examples .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(0.7rem, 1.4vw, 1.2rem);
+            margin-top: clamp(0.9rem, 1.8vw, 1.5rem);
+        }
+
+        #slide-examples .ex-card {
+            background: var(--white-05);
+            border: 1px solid var(--white-10);
+            border-radius: 12px;
+            padding: clamp(0.9rem, 1.8vw, 1.5rem);
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            transition: border-color 0.3s ease;
+        }
+
+        #slide-examples .ex-card:hover {
+            border-color: rgba(29,185,84,0.4);
+        }
+
+        #slide-examples .ex-tag {
+            display: inline-block;
+            padding: 0.2em 0.65em;
+            border-radius: 100px;
+            font-size: var(--label-size);
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            background: rgba(29,185,84,0.1);
+            border: 1px solid rgba(29,185,84,0.28);
+            color: var(--green-accent);
+            width: fit-content;
+        }
+
+        #slide-examples .ex-title {
+            font-family: var(--font-display);
+            font-size: clamp(0.88rem, 1.5vw, 1.15rem);
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        #slide-examples .ex-desc {
+            font-size: var(--small-size);
+            color: var(--white-60);
+            line-height: 1.5;
+            flex: 1;
+        }
+
+        #slide-examples .ex-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: var(--small-size);
+            font-weight: 600;
+            color: var(--green-accent);
+            text-decoration: none;
+            transition: gap 0.2s ease;
+            margin-top: auto;
+        }
+
+        #slide-examples .ex-link:hover { gap: 0.65rem; }
+
+        #slide-examples .dev-bar {
+            margin-top: clamp(0.65rem, 1.3vw, 1rem);
+            padding: clamp(0.7rem, 1.4vw, 1rem) clamp(1.25rem, 2.5vw, 1.75rem);
+            background: rgba(29,185,84,0.07);
+            border: 1px solid rgba(29,185,84,0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: clamp(0.75rem, 1.5vw, 1.5rem);
+        }
+
+        #slide-examples .dev-label {
+            font-size: var(--label-size);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--white-40);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        #slide-examples .dev-text {
+            font-size: var(--small-size);
+            color: var(--white-70, rgba(255,255,255,0.7));
+            line-height: 1.5;
+        }
+
+        #slide-examples .dev-text strong { color: var(--white); }
+
+        /* ===========================================
+           SLIDE OUTCOMES — 90-DAY PILOT PROJECTION
+           =========================================== */
+        #slide-outcomes {
+            background: var(--green-dark);
+        }
+
+        #slide-outcomes .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.55rem, 1.1vw, 0.9rem);
+            margin-top: clamp(0.9rem, 1.8vw, 1.5rem);
+        }
+
+        #slide-outcomes .metric-card {
+            background: var(--white-05);
+            border: 1px solid var(--white-10);
+            border-radius: 12px;
+            padding: clamp(0.8rem, 1.6vw, 1.35rem);
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s ease;
+        }
+
+        #slide-outcomes .metric-card:hover {
+            border-color: rgba(29,185,84,0.35);
+        }
+
+        #slide-outcomes .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--green-accent);
+        }
+
+        #slide-outcomes .metric-num {
+            font-family: var(--font-display);
+            font-size: clamp(1.4rem, 3vw, 2.75rem);
+            font-weight: 800;
+            color: var(--green-accent);
+            line-height: 1;
+            margin-bottom: 0.3rem;
+        }
+
+        #slide-outcomes .metric-label {
+            font-size: var(--small-size);
+            color: var(--white-60);
+            line-height: 1.45;
+        }
+
+        #slide-outcomes .takeaway {
+            margin-top: clamp(0.65rem, 1.3vw, 1.1rem);
+            padding: clamp(0.7rem, 1.4vw, 1rem) clamp(1.25rem, 2.5vw, 2rem);
+            background: rgba(29,185,84,0.08);
+            border: 1px solid rgba(29,185,84,0.25);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: clamp(0.75rem, 1.5vw, 1.5rem);
+        }
+
+        #slide-outcomes .takeaway-label {
+            font-size: var(--label-size);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--white-40);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        #slide-outcomes .takeaway-text {
+            font-family: var(--font-display);
+            font-size: clamp(0.85rem, 1.6vw, 1.25rem);
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        /* ===========================================
+           SLIDE 10 — ROADMAP
+           =========================================== */
+        #slide-10 .roadmap {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.9rem, 1.8vw, 1.4rem);
+            margin-top: clamp(1.5rem, 3vw, 2.25rem);
+        }
+
+        #slide-10 .month {
+            background: var(--white-05);
+            border: 1px solid var(--white-10);
+            border-radius: 12px;
+            padding: clamp(1rem, 2vw, 1.75rem);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #slide-10 .month-bg {
+            position: absolute;
+            bottom: -0.15em; right: 0.1em;
+            font-family: var(--font-display);
+            font-size: clamp(4rem, 8vw, 7rem);
+            font-weight: 800;
+            color: var(--white-05);
+            line-height: 1;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        #slide-10 .month-label {
+            font-size: var(--label-size);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green-accent);
+            margin-bottom: 0.6rem;
+        }
+
+        #slide-10 .tasks { list-style: none; display: flex; flex-direction: column; gap: 0.4em; }
+
+        #slide-10 .tasks li {
+            font-size: var(--small-size);
+            color: var(--white-70, rgba(255,255,255,0.7));
+            padding-left: 1.1em;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        #slide-10 .tasks li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--green-accent);
+            font-size: 0.75em;
+        }
+
+        /* ===========================================
+           SLIDE 11 — CONCLUSION
+           =========================================== */
+        #slide-11 {
+            background: linear-gradient(135deg, #065c17 0%, var(--green-dark) 100%);
+        }
+
+        #slide-11 .bg-pulse {
+            width: clamp(400px, 75vw, 900px);
+            height: clamp(400px, 75vw, 900px);
+            background: radial-gradient(circle, rgba(29,185,84,0.07) 0%, transparent 60%);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #slide-11 .cta-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.7rem, 1.5vw, 1.2rem);
+            margin: clamp(1.5rem, 3vw, 2.25rem) 0;
+        }
+
+        #slide-11 .cta-card {
+            background: var(--white-05);
+            border: 1px solid var(--white-10);
+            border-radius: 10px;
+            padding: clamp(0.75rem, 1.5vw, 1.25rem);
+            text-align: center;
+        }
+
+        #slide-11 .cta-icon { font-size: clamp(1.25rem, 2.5vw, 2rem); display: block; margin-bottom: 0.4rem; }
+
+        #slide-11 .cta-label {
+            font-size: var(--label-size);
+            color: var(--white-40);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        #slide-11 .cta-value {
+            font-family: var(--font-display);
+            font-size: clamp(0.82rem, 1.3vw, 1.05rem);
+            font-weight: 700;
+            color: var(--green-accent);
+        }
+
+        #slide-11 .final {
+            font-family: var(--font-display);
+            font-size: clamp(0.95rem, 1.9vw, 1.45rem);
+            font-weight: 300;
+            color: var(--white-70, rgba(255,255,255,0.7));
+            line-height: 1.65;
+            max-width: 680px;
+        }
+
+        #slide-11 .final strong { color: var(--white); font-weight: 700; }
+
+        /* ===========================================
+           RESPONSIVE BREAKPOINTS
+           =========================================== */
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(1.25rem, 3vw, 2.5rem);
+                --content-gap:   clamp(0.75rem, 1.5vw, 1.5rem);
+            }
+        }
+
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(1rem, 2.5vw, 2rem);
+                --content-gap:   clamp(0.5rem, 1.2vw, 1rem);
+                --title-size:    clamp(1.5rem, 4.5vw, 3rem);
+                --h2-size:       clamp(1.1rem, 2.8vw, 2rem);
+                --body-size:     clamp(0.72rem, 1.1vw, 0.9rem);
+            }
+            .nav-dots { display: none; }
+        }
+
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 2vw, 1.5rem);
+                --title-size:    clamp(1.25rem, 3.5vw, 2rem);
+                --h2-size:       clamp(1rem, 2.2vw, 1.5rem);
+            }
+        }
+
+        @media (max-width: 768px) {
+            #slide-2 .summary-grid,
+            #slide-3 .context-grid,
+            #slide-4 .pain-points,
+            #slide-5 .challenges,
+            #slide-6 .comparison,
+            #slide-8 .tools,
+            #slide-9 .roi-grid,
+            #slide-examples .examples-grid,
+            #slide-skills .skills-grid,
+            #slide-outcomes .metrics-grid,
+            #slide-10 .roadmap,
+            #slide-11 .cta-cards { grid-template-columns: 1fr; }
+
+            #slide-9 .cost-bar { grid-column: 1; }
+            #slide-6 .vs { display: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { transition: opacity 0.2s ease; transform: none; }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ===========================================
+           SLIDE MENU NAV
+           =========================================== */
+        .menu-btn {
+            position: fixed;
+            top: clamp(1rem, 2vw, 1.5rem);
+            left: clamp(1rem, 2.5vw, 2rem);
+            z-index: 200;
+            background: var(--white-10);
+            border: 1px solid var(--white-20);
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: background 0.3s var(--ease-expo);
+            padding: 0;
+        }
+        .menu-btn:hover { background: var(--white-20); }
+        .menu-btn span {
+            display: block;
+            width: 18px;
+            height: 2px;
+            background: var(--white);
+            border-radius: 2px;
+            transition: all 0.3s var(--ease-expo);
+            transform-origin: center;
+        }
+        .menu-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .menu-btn.open span:nth-child(2) { opacity: 0; }
+        .menu-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        .menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 150;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .menu-overlay.open { opacity: 1; pointer-events: all; }
+
+        .slide-menu {
+            position: fixed;
+            top: 0; left: 0;
+            width: 280px;
+            height: 100%;
+            background: var(--green-dark);
+            border-right: 1px solid var(--white-10);
+            z-index: 180;
+            transform: translateX(-100%);
+            transition: transform 0.4s var(--ease-expo);
+            display: flex;
+            flex-direction: column;
+            padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 2vw, 1.5rem);
+            overflow-y: auto;
+        }
+        .slide-menu.open { transform: translateX(0); }
+
+        .slide-menu .menu-header {
+            margin-bottom: 1.75rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--white-10);
+        }
+        .slide-menu .menu-header .label { font-size: var(--label-size); color: var(--green-accent); }
+        .slide-menu .menu-header p { font-size: var(--small-size); color: var(--white-40); margin-top: 0.25rem; }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            color: var(--white-60);
+            font-size: var(--small-size);
+            font-family: var(--font-body);
+        }
+        .menu-item:hover { background: var(--white-05); color: var(--white); }
+        .menu-item.active { background: var(--white-10); color: var(--white); }
+        .menu-item .menu-num {
+            font-size: 0.62rem;
+            font-weight: 600;
+            color: var(--green-accent);
+            letter-spacing: 0.08em;
+            min-width: 20px;
+        }
+
+        .menu-divider {
+            height: 1px;
+            background: var(--white-10);
+            margin: 0.75rem 0;
+        }
+
+        .menu-ext-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+            text-decoration: none;
+            color: var(--white-40);
+            font-size: var(--small-size);
+            font-family: var(--font-body);
+        }
+        .menu-ext-link:hover { background: var(--white-05); color: var(--white-60); }
+        .menu-ext-link .menu-icon {
+            font-size: 0.65rem;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .menu-badge {
+            display: inline-block;
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--green-dark);
+            background: var(--green-accent);
+            padding: 0.15em 0.45em;
+            border-radius: 4px;
+            margin-left: 0.4rem;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="progress-bar" id="progressBar"></div>
+    <nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+    <div class="slide-counter" id="slideCounter">1 / 14</div>
+
+    <button class="menu-btn" id="menuBtn" aria-label="Open navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <div class="menu-overlay" id="menuOverlay"></div>
+    <aside class="slide-menu" id="slideMenu">
+        <div class="menu-header">
+            <div class="label">NHCI Strategic Proposal</div>
+            <p>Sakani Workflow & Experience</p>
+        </div>
+    </aside>
+
+    <!-- ======================================================
+         SLIDE 1 — TITLE
+    ====================================================== -->
+    <section class="slide" id="slide-1" aria-label="Title">
+        <div class="bg-circle bg-glow-1"></div>
+        <div class="bg-circle bg-glow-2"></div>
+        <div class="bg-grid"></div>
+        <div class="slide-content">
+            <div class="eyebrow reveal">
+                <div class="line"></div>
+                <span class="label">NHCI Strategic Proposal</span>
+            </div>
+            <h1 class="reveal">
+                Sakani Workflow<br>
+                &amp; <span class="highlight">Experience</span><br>
+                Acceleration
+            </h1>
+            <p class="subtitle reveal">90-Day Pilot Program Initiative</p>
+            <div class="meta-row reveal">
+                <span>Strategic Proposal</span>
+                <div class="meta-sep"></div>
+                <span>2026</span>
+                <div class="meta-sep"></div>
+                <span>90 Days</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 2 — EXECUTIVE SUMMARY
+    ====================================================== -->
+    <section class="slide" id="slide-2" aria-label="Executive Summary">
+        <div class="slide-content">
+            <div class="reveal">
+                <span class="label">01 — Executive Summary</span>
+                <div class="divider"></div>
+                <h2>The Objective Is Not<br>to Purchase Tools</h2>
+            </div>
+            <p class="reveal" style="margin-top:clamp(0.5rem,1vw,0.75rem); font-size:var(--small-size);">
+                The objective is to reduce the time it takes to learn what works.
+            </p>
+            <div class="summary-grid reveal">
+                <div class="summary-card">
+                    <div class="big-num">90</div>
+                    <p>Days to prove a modernized product learning cycle with measurable KPIs</p>
+                </div>
+                <div class="summary-card">
+                    <div class="big-num">3×</div>
+                    <p>Core improvement areas: validation speed, experience quality, and execution efficiency</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 3 — STRATEGIC CONTEXT
+    ====================================================== -->
+    <section class="slide" id="slide-3" aria-label="Strategic Context">
+        <div class="slide-content">
+            <div class="reveal">
+                <span class="label">02 — Strategic Context</span>
+                <div class="divider"></div>
+                <h2>Unicorn Ambition Requires<br>Modern Execution</h2>
+            </div>
+            <div class="context-grid reveal">
+                <p class="big-statement">
+                    To compete at <strong>Top 10 in KSA</strong> and position for long-term unicorn status,<br>
+                    <strong>speed of learning</strong> becomes the primary competitive advantage.
+                    Traditional workflows delay learning. Modern companies compress it.
+                </p>
+                <div class="pillars">
+                    <div class="pillar">Learn faster than competitors</div>
+                    <div class="pillar">Validate assumptions early</div>
+                    <div class="pillar">Reduce execution waste</div>
+                    <div class="pillar">Differentiate through digital experience</div>
+                    <div class="pillar">Continuously optimize for revenue</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 4 — CURRENT WORKFLOW
+    ====================================================== -->
+    <section class="slide" id="slide-4" aria-label="Current Workflow">
+        <div class="slide-content">
+            <div class="reveal">
+                <span class="label">03 — Current State</span>
+                <div class="divider"></div>
+                <h2>The Workflow Today</h2>
+            </div>
+            <div class="timeline reveal">
+                <div class="t-step">
+                    <div class="t-week">Wk 1–2</div>
+                    <div class="t-task">PRDs</div>
+                </div>
+                <div class="t-step">
+                    <div class="t-week">Wk 3–4</div>
+                    <div class="t-task">Static Mocks</div>
+                </div>
+                <div class="t-step">
+                    <div class="t-week">Wk 5–7</div>
+                    <div class="t-task">Engineering</div>
+                </div>
+                <div class="t-step">
+                    <div class="t-week">Wk 8–10</div>
+                    <div class="t-task">Development</div>
+                </div>
+            </div>
+            <p class="reveal" style="font-size:var(--small-size); color:var(--white-60); margin-bottom:clamp(0.6rem,1.2vw,0.9rem);">
+                <strong style="color:var(--red);">Validation occurs late.</strong>&nbsp; This creates real costs:
+            </p>
+            <div class="pain-points reveal">
+                <div class="pain-item">Long feedback loops</div>
+                <div class="pain-item">High cost of change</div>
+                <div class="pain-item">Increased rework</div>
+                <div class="pain-item">Delayed experimentation</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 5 — CORE CHALLENGES
+    ====================================================== -->
+    <section class="slide" id="slide-5" aria-label="Core Challenges">
+        <div class="slide-content">
+            <div class="reveal">
+                <span class="label">04 — Core Challenges</span>
+                <div class="divider"></div>
+                <h2>Four Areas Holding Us Back</h2>
+            </div>
+            <div class="challenges">
+                <div class="ch-card reveal">
+                    <div class="ch-num">01</div>
+                    <div class="ch-title">Slow Validation Cycle</div>
+                    <div class="ch-desc">3–4 weeks before ideas reach production. Testing occurs after development.</div>
+                </div>
+                <div class="ch-card reveal">
+                    <div class="ch-num">02</div>
+                    <div class="ch-title">Static Prototyping</div>
+                    <div class="ch-desc">Figma POCs with no motion, no realistic interaction testing, limited edge cases.</div>
+                </div>
+                <div class="ch-card reveal">
+                    <div class="ch-num">03</div>
+                    <div class="ch-title">Design–Dev Friction</div>
+                    <div class="ch-desc">Clarification loops, visual gaps, UI mismatches, and rework cycles post-delivery.</div>
+                </div>
+                <div class="ch-card reveal">
+                    <div class="ch-num">04</div>
+                    <div class="ch-title">Optimization Opportunities</div>
+                    <div class="ch-desc">SEO is one example — in a quick test on a live Sakani page, improvements were found instantly. Navigation, flows, landing pages: same pattern, more to explore.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 6 — MODERN PRODUCT MODEL
+    ====================================================== -->
+    <section class="slide" id="slide-6" aria-label="Modern Product Model">
+        <div class="slide-content">
+            <div class="reveal">
+                <span class="label">05 — The Solution</span>
+                <div class="divider"></div>
+                <h2>How High-Growth Companies Operate</h2>
+            </div>
+            <div class="comparison reveal">
+                <div class="model-col old">
+                    <div class="m-label">Traditional</div>
+                    <div class="flow-step">📄 PRD</div>
+                    <div class="flow-step">🖼 Static Mock</div>
+                    <div class="flow-step">⚙️ Development</div>
+                    <div class="flow-step">🚀 Launch</div>
+                    <div class="flow-step">✅ Validation</div>
+                </div>
+                <div class="vs">VS</div>
+                <div class="model-col fresh">
+                    <div class="m-label">Modern</div>
+                    <div class="flow-step">⚡ Interactive Prototype</div>
+                    <div class="flow-step">✅ Early Testing</div>
+                    <div class="flow-step">🔧 Refined System</div>
+                    <div class="flow-step">⚙️ Development</div>
+                    <div class="flow-step">🚀 Launch</div>
+                </div>
+            </div>
+            <p class="reveal" style="font-size:var(--small-size); color:var(--white-60); margin-top:clamp(0.75rem,1.5vw,1rem);">
+                Learning occurs before development. Decisions are data-informed. Execution waste is minimized.
+            </p>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 7 — 90-DAY PILOT
+    ====================================================== -->
+    <section class="slide" id="slide-7" aria-label="90-Day Pilot">
+        <div class="slide-content">
+            <div class="reveal">
+                <span class="label">06 — Proposed Initiative</span>
+                <div class="divider"></div>
+                <h2>90-Day Pilot Program</h2>
+            </div>
+            <div class="pilot-meta reveal">
+                <div>
+                    <div class="p-meta-label">Duration</div>
+                    <div class="p-meta-val">90 Days</div>
+                </div>
+                <div>
+                    <div class="p-meta-label">Scope</div>
+                    <div class="p-meta-val">Single-person pilot</div>
+                </div>
+                <div>
+                    <div class="p-meta-label">Monthly Cost</div>
+                    <div class="p-meta-val">$200–$400 / mo</div>
+                </div>
+            </div>
+            <div class="objectives">
+                <div class="obj reveal"><span class="obj-n">01</span><span class="obj-t">Reduce validation cycle time</span></div>
+                <div class="obj reveal"><span class="obj-n">02</span><span class="obj-t">Improve design–development alignment</span></div>
+                <div class="obj reveal"><span class="obj-n">03</span><span class="obj-t">Accelerate SEO and UX optimization</span></div>
+                <div class="obj reveal"><span class="obj-n">04</span><span class="obj-t">Introduce motion and interaction depth</span></div>
+                <div class="obj reveal"><span class="obj-n">05</span><span class="obj-t">Automate documentation and workflow processes</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE EXAMPLES — REAL PROTOTYPES DONE IN 2024
+    ====================================================== -->
+    <section class="slide" id="slide-examples" aria-label="Real Examples">
+        <div class="slide-content">
+            <div class="reveal">
+                <span class="label">Already Done — 2024</span>
+                <div class="divider"></div>
+                <h2>Prototypes That Prove the Model</h2>
+                <p style="margin-top:0.35rem; font-size:var(--small-size); color:var(--white-60);">
+                    SEO is one example. Navigation, flows, landing pages — all validated in 1–2 days using the same accelerated approach.
+                </p>
+            </div>
+            <div class="examples-grid">
+                <div class="ex-card reveal">
+                    <span class="ex-tag">Navigation</span>
+                    <div class="ex-title">New Sakani Navigation</div>
+                    <div class="ex-desc">Full interactive navigation prototype. Every interaction is real — teams see exactly what to expect before development starts. No interpretation gaps.</div>
+                    <a href="https://v0-navigation-web.vercel.app/menu2" target="_blank" class="ex-link">View Live →</a>
+                </div>
+                <div class="ex-card reveal">
+                    <span class="ex-tag">Flow</span>
+                    <div class="ex-title">Create a Request — Build</div>
+                    <div class="ex-desc">End-to-end flow prototype for a core user journey. Validated with real interactions in days. Feedback applied before a single sprint started.</div>
+                    <a href="https://v0-claude-ai-prd.vercel.app/" target="_blank" class="ex-link">View Live →</a>
+                </div>
+                <div class="ex-card reveal">
+                    <span class="ex-tag">Landing</span>
+                    <div class="ex-title">Build Landing Page</div>
+                    <div class="ex-desc">Marketing landing page built and iterated rapidly for stakeholder review. From concept to shareable prototype in under 2 days.</div>
+                    <a href="https://v0-landing-page-beta-seven.vercel.app/" target="_blank" class="ex-link">View Live →</a>
+                </div>
+                <div class="ex-card reveal">
+                    <span class="ex-tag">SEO</span>
+                    <div class="ex-title">SEO Image Optimization Report</div>
+                    <div class="ex-desc">AI-assisted audit of Sakani's image SEO — missing alt text, oversized assets, format gaps — surfaced and structured in a single session. One example of continuous optimization.</div>
+                    <a href="https://sakani-seo-report-image.vercel.app/" target="_blank" class="ex-link">View Report →</a>
+                </div>
+            </div>
+            <div class="dev-bar reveal">
+                <span class="dev-label">For Developers</span>
+                <p class="dev-text">
+                    <strong>No more "how does this interaction work?" questions.</strong>
+                    They receive a working prototype — and potentially the code — before the sprint starts. What you see is what gets built.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE SKILLS — POSSIBLE SKILLS TO USE / BUILD
+    ====================================================== -->
+    <section class="slide" id="slide-skills" aria-label="Capability Assessment">
+        <div class="slide-content">
+            <div class="reveal">
+                <div class="idea-banner">💡 Under Exploration — To Be Validated</div>
+                <h2>Capabilities to Measure &amp; Elevate</h2>
+                <p style="margin-top:0.35rem; font-size:var(--small-size); color:var(--white-60);">
+                    To accelerate learning speed, we must evaluate the skills that directly impact validation, visibility, and execution quality.
+                </p>
+            </div>
+            <div class="skills-grid">
+                <div class="sk-card proven reveal">
+                    <div class="sk-num">01</div>
+                    <div class="sk-name">SEO &amp; GEO Optimization</div>
+                    <div class="sk-desc">Search performance, structured data, image optimization, content indexing, and generative search readiness.</div>
+                    <div class="sk-test"><strong>Test:</strong> Conduct a live page audit and define a measurable improvement plan.</div>
+                </div>
+                <div class="sk-card reveal">
+                    <div class="sk-num">02</div>
+                    <div class="sk-name">DGA / Growth Experimentation</div>
+                    <div class="sk-desc">Hypothesis framing, A/B logic, rapid validation thinking, and performance tracking.</div>
+                    <div class="sk-test"><strong>Test:</strong> Redesign one core flow with structured experiment logic before development.</div>
+                </div>
+                <div class="sk-card reveal">
+                    <div class="sk-num">03</div>
+                    <div class="sk-name">Documentation Intelligence (PRD &amp; BRD)</div>
+                    <div class="sk-desc">Clarity, completeness, edge-case anticipation, requirement structure, and automation potential.</div>
+                    <div class="sk-test"><strong>Test:</strong> Audit one live PRD and identify ambiguity, gaps, and optimization opportunities.</div>
+                </div>
+                <div class="sk-card proven reveal">
+                    <div class="sk-num">04</div>
+                    <div class="sk-name">Interactive Prototyping Depth</div>
+                    <div class="sk-desc">Motion, real interaction states, edge-case simulation, and production realism.</div>
+                    <div class="sk-test"><strong>Test:</strong> Deliver a fully testable interactive prototype aligned with development standards.</div>
+                </div>
+                <div class="sk-card reveal">
+                    <div class="sk-num">05</div>
+                    <div class="sk-name">Executive Presentation &amp; Narrative</div>
+                    <div class="sk-desc">Translate product decisions into business impact: ROI, risk reduction, and growth leverage.</div>
+                    <div class="sk-test"><strong>Test:</strong> Present one feature as a business case, not a UI update.</div>
+                </div>
+                <div class="sk-card reveal">
+                    <div class="sk-num">06</div>
+                    <div class="sk-name">Brand-Aligned Content &amp; AI Assistance</div>
+                    <div class="sk-desc">Generate feature descriptions, marketing copy, and in-product messaging aligned with brand tone of voice and positioning standards.</div>
+                    <div class="sk-test"><strong>Test:</strong> Rewrite one feature section using the official tone of voice and evaluate clarity, consistency, and business impact.</div>
+                </div>
+            </div>
+            <div class="disclaimer reveal">
+                <span>⚠️</span>
+                <span>These are ideas for now — capabilities already started are highlighted in green. Each needs to be scoped, tested, and validated before full adoption.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 8 — ENABLING TOOLS
+    ====================================================== -->
+    <section class="slide" id="slide-8" aria-label="Enabling Tools">
+        <div class="slide-content">
+            <div class="reveal">
+                <span class="label">07 — Infrastructure</span>
+                <div class="divider"></div>
+                <h2>Enabling Tools</h2>
+                <p style="margin-top:0.4rem; font-size:var(--small-size); color:var(--white-60);">
+                    Not the goal — they enable measurable performance improvements.
+                </p>
+            </div>
+            <div class="tools">
+                <div class="tool reveal">
+                    <div class="tool-icon">🤖</div>
+                    <div>
+                        <div class="tool-name">Claude Code</div>
+                        <div class="tool-desc">UX audits, SEO analysis (already proven on a live Sakani page), documentation automation, code-alignment insights</div>
+                    </div>
+                </div>
+                <div class="tool reveal">
+                    <div class="tool-icon">✨</div>
+                    <div>
+                        <div class="tool-name">Motion Tools (Rive / Jitter)</div>
+                        <div class="tool-desc">Microinteractions, animated flows, premium interaction storytelling</div>
+                    </div>
+                </div>
+                <div class="tool reveal">
+                    <div class="tool-icon">🎨</div>
+                    <div>
+                        <div class="tool-name">AI Asset Tools (Freepik AI)</div>
+                        <div class="tool-desc">Rapid visual generation, image optimization, consistent creative output</div>
+                    </div>
+                </div>
+                <div class="tool reveal">
+                    <div class="tool-icon">⚡</div>
+                    <div>
+                        <div class="tool-name">Rapid Prototyping (Lovable)</div>
+                        <div class="tool-desc">Interactive POCs with mock data — validation in days, not weeks</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 9 — ROI
+    ====================================================== -->
+    <section class="slide" id="slide-9" aria-label="Expected ROI">
+        <div class="slide-content">
+            <div class="reveal">
+                <span class="label">08 — Business Case</span>
+                <div class="divider"></div>
+                <h2>Expected ROI (3–6 Months)</h2>
+            </div>
+            <div class="roi-grid">
+                <div class="reduce reveal">
+                    <div class="roi-heading">Reduce</div>
+                    <div class="roi-item">Validation cycle time</div>
+                    <div class="roi-item">Rework</div>
+                    <div class="roi-item">Clarification loops</div>
+                    <div class="roi-item">Late-stage corrections</div>
+                </div>
+                <div class="increase reveal">
+                    <div class="roi-heading">Increase</div>
+                    <div class="roi-item">Experiment frequency</div>
+                    <div class="roi-item">SEO optimization cycles</div>
+                    <div class="roi-item">Interaction quality</div>
+                    <div class="roi-item">Revenue learning speed</div>
+                </div>
+                <div class="cost-bar reveal">
+                    <div>
+                        <div class="cost-num">$200–$400</div>
+                        <div class="cost-sub">Estimated Monthly Cost</div>
+                    </div>
+                    <p class="cost-note">One delayed sprint or rework cycle likely exceeds this investment.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE OUTCOMES — 90-DAY PILOT PROJECTION
+    ====================================================== -->
+    <section class="slide" id="slide-outcomes" aria-label="90-Day Outcomes Projection">
+        <div class="slide-content">
+            <div class="reveal">
+                <span class="label">Pilot Projection</span>
+                <div class="divider"></div>
+                <h2>What We Expect to Achieve</h2>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card reveal">
+                    <div class="metric-num">2×</div>
+                    <div class="metric-label">Faster early-stage validation<br>(Weeks → Days)</div>
+                </div>
+                <div class="metric-card reveal">
+                    <div class="metric-num">10–20%</div>
+                    <div class="metric-label">Reduction in design–development back-and-forth</div>
+                </div>
+                <div class="metric-card reveal">
+                    <div class="metric-num">2–3×</div>
+                    <div class="metric-label">Increase in interactive POC velocity</div>
+                </div>
+                <div class="metric-card reveal">
+                    <div class="metric-num">&lt;7 Days</div>
+                    <div class="metric-label">From idea to testable prototype</div>
+                </div>
+                <div class="metric-card reveal">
+                    <div class="metric-num">Always</div>
+                    <div class="metric-label">AI-assisted SEO &amp; UX optimization — running continuously</div>
+                </div>
+                <div class="metric-card reveal">
+                    <div class="metric-num">Higher</div>
+                    <div class="metric-label">Perceived product maturity through motion &amp; interaction</div>
+                </div>
+            </div>
+            <div class="takeaway reveal">
+                <span class="takeaway-label">Key Takeaway</span>
+                <span class="takeaway-text">Fix the workflow. Every feature improves.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 10 — ROADMAP
+    ====================================================== -->
+    <section class="slide" id="slide-10" aria-label="Implementation Roadmap">
+        <div class="slide-content">
+            <div class="reveal">
+                <span class="label">09 — Implementation</span>
+                <div class="divider"></div>
+                <h2>90-Day Roadmap</h2>
+            </div>
+            <div class="roadmap">
+                <div class="month reveal">
+                    <div class="month-label">Month 1</div>
+                    <ul class="tasks">
+                        <li>Establish workflow baseline metrics</li>
+                        <li>Conduct first SEO and UX audits</li>
+                        <li>Introduce motion prototype example</li>
+                        <li>Deliver one rapid functional POC</li>
+                    </ul>
+                    <div class="month-bg">1</div>
+                </div>
+                <div class="month reveal">
+                    <div class="month-label">Month 2</div>
+                    <ul class="tasks">
+                        <li>Reduce validation cycle in exploration</li>
+                        <li>Introduce documentation automation</li>
+                        <li>Implement structured optimization process</li>
+                    </ul>
+                    <div class="month-bg">2</div>
+                </div>
+                <div class="month reveal">
+                    <div class="month-label">Month 3</div>
+                    <ul class="tasks">
+                        <li>Measure velocity improvement</li>
+                        <li>Present performance comparison</li>
+                        <li>Evaluate scaling tools to broader team</li>
+                    </ul>
+                    <div class="month-bg">3</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 11 — CONCLUSION
+    ====================================================== -->
+    <section class="slide" id="slide-11" aria-label="Conclusion">
+        <div class="bg-circle bg-pulse"></div>
+        <div class="bg-grid"></div>
+        <div class="slide-content" style="align-items:center; text-align:center;">
+            <div class="reveal">
+                <span class="label">10 — Conclusion</span>
+                <div class="divider" style="margin:clamp(0.6rem,1.2vw,1rem) auto;"></div>
+                <h2>The Investment is Minimal.<br>The Upside is Significant.</h2>
+            </div>
+            <div class="cta-cards reveal">
+                <div class="cta-card">
+                    <span class="cta-icon">⚠️</span>
+                    <div class="cta-label">Risk</div>
+                    <div class="cta-value">Low</div>
+                </div>
+                <div class="cta-card">
+                    <span class="cta-icon">💰</span>
+                    <div class="cta-label">Cost</div>
+                    <div class="cta-value">Low</div>
+                </div>
+                <div class="cta-card">
+                    <span class="cta-icon">📊</span>
+                    <div class="cta-label">Measurable</div>
+                    <div class="cta-value">Yes</div>
+                </div>
+            </div>
+            <p class="final reveal">
+                If Sakani aims to become <strong>Top 10 in KSA</strong> and position for unicorn ambition,<br>
+                product learning speed and validation infrastructure must evolve.<br>
+                <strong>This 90-day pilot is the first step.</strong>
+            </p>
+        </div>
+    </section>
+
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           Keyboard, touch, scroll navigation + animations
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides        = Array.from(document.querySelectorAll('.slide'));
+                this.total         = this.slides.length;
+                this.current       = 0;
+                this.progressBar   = document.getElementById('progressBar');
+                this.counter       = document.getElementById('slideCounter');
+                this.dotsContainer = document.getElementById('navDots');
+                this.init();
+            }
+
+            init() {
+                this.buildDots();
+                this.buildMenu();
+                this.observe();
+                this.onKey();
+                this.onTouch();
+                this.onWheel();
+                this.updateUI(0);
+            }
+
+            buildMenu() {
+                const btn     = document.getElementById('menuBtn');
+                const overlay = document.getElementById('menuOverlay');
+                const menu    = document.getElementById('slideMenu');
+
+                const open  = () => { btn.classList.add('open'); overlay.classList.add('open'); menu.classList.add('open'); };
+                const close = () => { btn.classList.remove('open'); overlay.classList.remove('open'); menu.classList.remove('open'); };
+                const toggle = () => menu.classList.contains('open') ? close() : open();
+
+                btn.addEventListener('click', toggle);
+                overlay.addEventListener('click', close);
+                document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+
+                this.menuItems = [];
+                this.slides.forEach((slide, i) => {
+                    const label = slide.getAttribute('aria-label') || `Slide ${i + 1}`;
+                    const item = document.createElement('button');
+                    item.className = 'menu-item';
+                    item.innerHTML = `<span class="menu-num">${String(i + 1).padStart(2, '0')}</span>${label}`;
+                    item.addEventListener('click', () => { this.goTo(i); close(); });
+                    menu.appendChild(item);
+                    this.menuItems.push(item);
+                });
+
+                // Separator + link to evolution presentation
+                const divider = document.createElement('div');
+                divider.className = 'menu-divider';
+                menu.appendChild(divider);
+
+                const fwdLink = document.createElement('a');
+                fwdLink.className = 'menu-ext-link';
+                fwdLink.href = 'sakani-evolution.html';
+                fwdLink.innerHTML = `<span class="menu-icon">→</span>Product Evolution Opportunities<span class="menu-badge">New</span>`;
+                menu.appendChild(fwdLink);
+
+                this.closeMenu = close;
+            }
+
+            buildDots() {
+                this.slides.forEach((_, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'nav-dot';
+                    btn.setAttribute('aria-label', `Slide ${i + 1}`);
+                    btn.addEventListener('click', () => this.goTo(i));
+                    this.dotsContainer.appendChild(btn);
+                });
+            }
+
+            observe() {
+                const io = new IntersectionObserver(entries => {
+                    entries.forEach(e => {
+                        if (e.isIntersecting) {
+                            e.target.classList.add('visible');
+                            const idx = this.slides.indexOf(e.target);
+                            if (idx !== -1) this.updateUI(idx);
+                        }
+                    });
+                }, { threshold: 0.6 });
+                this.slides.forEach(s => io.observe(s));
+            }
+
+            onKey() {
+                document.addEventListener('keydown', e => {
+                    if (['ArrowRight','ArrowDown',' '].includes(e.key)) {
+                        e.preventDefault();
+                        this.goTo(Math.min(this.current + 1, this.total - 1));
+                    }
+                    if (['ArrowLeft','ArrowUp'].includes(e.key)) {
+                        e.preventDefault();
+                        this.goTo(Math.max(this.current - 1, 0));
+                    }
+                    if (e.key === 'Home') { e.preventDefault(); this.goTo(0); }
+                    if (e.key === 'End')  { e.preventDefault(); this.goTo(this.total - 1); }
+                });
+            }
+
+            onTouch() {
+                let startY = 0, startX = 0;
+                document.addEventListener('touchstart', e => {
+                    startY = e.touches[0].clientY;
+                    startX = e.touches[0].clientX;
+                }, { passive: true });
+                document.addEventListener('touchend', e => {
+                    const dy = startY - e.changedTouches[0].clientY;
+                    const dx = startX - e.changedTouches[0].clientX;
+                    if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 40) {
+                        dy > 0
+                            ? this.goTo(Math.min(this.current + 1, this.total - 1))
+                            : this.goTo(Math.max(this.current - 1, 0));
+                    }
+                }, { passive: true });
+            }
+
+            onWheel() {
+                let t;
+                document.addEventListener('wheel', e => {
+                    e.preventDefault();
+                    clearTimeout(t);
+                    t = setTimeout(() => {
+                        if (e.deltaY > 30)       this.goTo(Math.min(this.current + 1, this.total - 1));
+                        else if (e.deltaY < -30) this.goTo(Math.max(this.current - 1, 0));
+                    }, 50);
+                }, { passive: false });
+            }
+
+            goTo(i) {
+                if (i < 0 || i >= this.total) return;
+                this.slides[i].scrollIntoView({ behavior: 'smooth' });
+                this.updateUI(i);
+            }
+
+            updateUI(i) {
+                this.current = i;
+                this.progressBar.style.width = `${((i + 1) / this.total) * 100}%`;
+                this.counter.textContent = `${i + 1} / ${this.total}`;
+                this.dotsContainer.querySelectorAll('.nav-dot').forEach((d, idx) =>
+                    d.classList.toggle('active', idx === i));
+                if (this.menuItems) {
+                    this.menuItems.forEach((item, idx) =>
+                        item.classList.toggle('active', idx === i));
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => new SlidePresentation());
+    </script>
+</body>
+</html>

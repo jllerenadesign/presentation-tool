@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sakani – Product Evolution Opportunities</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES — NHCI BRAND THEME
+           Primary: #133C2B (dark green) + #FFFFFF (white)
+           =========================================== */
+        :root {
+            --green-dark:    #133C2B;
+            --green-mid:     #0a6b1f;
+            --green-subtle:  #0d5218;
+            --green-accent:  #1db954;
+            --white:         #ffffff;
+            --white-80:      rgba(255,255,255,0.80);
+            --white-60:      rgba(255,255,255,0.60);
+            --white-40:      rgba(255,255,255,0.40);
+            --white-20:      rgba(255,255,255,0.20);
+            --white-10:      rgba(255,255,255,0.10);
+            --white-05:      rgba(255,255,255,0.05);
+
+            --font-display: 'Plus Jakarta Sans', sans-serif;
+            --font-body:    'Inter', sans-serif;
+            --title-size:   clamp(2.25rem, 5.5vw, 4.75rem);
+            --h2-size:      clamp(1.5rem,  3.5vw, 2.75rem);
+            --body-size:    clamp(0.8rem,  1.3vw, 1.05rem);
+            --small-size:   clamp(0.7rem,  1vw,   0.875rem);
+            --label-size:   clamp(0.6rem,  0.75vw, 0.72rem);
+
+            --slide-padding: clamp(2rem, 5vw, 5rem);
+            --content-gap:   clamp(1rem, 2.5vw, 2.5rem);
+            --element-gap:   clamp(0.4rem, 1vw, 1rem);
+
+            --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --dur-fast:  0.4s;
+            --dur-norm:  0.7s;
+        }
+
+        /* ===========================================
+           RESET & BASE
+           =========================================== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            height: 100%;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--green-dark);
+            color: var(--white);
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        /* ===========================================
+           SLIDE SYSTEM — VIEWPORT FITTING
+           =========================================== */
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ===========================================
+           DECORATIVE BG ELEMENTS
+           =========================================== */
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .bg-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--white-05) 1px, transparent 1px),
+                linear-gradient(90deg, var(--white-05) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+        }
+
+        /* ===========================================
+           NAVIGATION
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 2px;
+            background: var(--green-accent);
+            transition: width 0.4s var(--ease-expo);
+            z-index: 100;
+        }
+
+        .nav-dots {
+            position: fixed;
+            right: clamp(1rem, 2.5vw, 2rem);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.3s var(--ease-expo);
+            border: none;
+            padding: 0;
+        }
+
+        .nav-dot.active {
+            background: var(--white);
+            height: 20px;
+            border-radius: 3px;
+        }
+
+        .slide-counter {
+            position: fixed;
+            bottom: clamp(1rem, 2vw, 1.5rem);
+            right: clamp(1rem, 2.5vw, 2rem);
+            font-size: var(--small-size);
+            color: var(--white-40);
+            letter-spacing: 0.05em;
+            z-index: 100;
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition:
+                opacity var(--dur-norm) var(--ease-expo),
+                transform var(--dur-norm) var(--ease-expo);
+        }
+
+        .slide.visible .reveal               { opacity: 1; transform: translateY(0); }
+        .slide.visible .reveal:nth-child(1)  { transition-delay: 0.05s; }
+        .slide.visible .reveal:nth-child(2)  { transition-delay: 0.15s; }
+        .slide.visible .reveal:nth-child(3)  { transition-delay: 0.25s; }
+        .slide.visible .reveal:nth-child(4)  { transition-delay: 0.35s; }
+        .slide.visible .reveal:nth-child(5)  { transition-delay: 0.45s; }
+        .slide.visible .reveal:nth-child(6)  { transition-delay: 0.55s; }
+        .slide.visible .reveal:nth-child(7)  { transition-delay: 0.65s; }
+
+        /* ===========================================
+           SHARED TYPOGRAPHY
+           =========================================== */
+        h1 {
+            font-family: var(--font-display);
+            font-size: var(--title-size);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-family: var(--font-display);
+            font-size: var(--h2-size);
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+
+        p { font-size: var(--body-size); line-height: 1.65; color: var(--white-80); }
+
+        .label {
+            font-size: var(--label-size);
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--green-accent);
+        }
+
+        .divider {
+            width: 40px;
+            height: 3px;
+            background: var(--green-accent);
+            border-radius: 2px;
+            margin: clamp(0.6rem, 1.2vw, 1.1rem) 0;
+        }
+
+        /* ===========================================
+           SLIDE MENU NAV
+           =========================================== */
+        .menu-btn {
+            position: fixed;
+            top: clamp(1rem, 2vw, 1.5rem);
+            left: clamp(1rem, 2.5vw, 2rem);
+            z-index: 200;
+            background: var(--white-10);
+            border: 1px solid var(--white-20);
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: background 0.3s var(--ease-expo);
+            padding: 0;
+        }
+        .menu-btn:hover { background: var(--white-20); }
+        .menu-btn span {
+            display: block;
+            width: 18px;
+            height: 2px;
+            background: var(--white);
+            border-radius: 2px;
+            transition: all 0.3s var(--ease-expo);
+            transform-origin: center;
+        }
+        .menu-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .menu-btn.open span:nth-child(2) { opacity: 0; }
+        .menu-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        .menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 150;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .menu-overlay.open { opacity: 1; pointer-events: all; }
+
+        .slide-menu {
+            position: fixed;
+            top: 0; left: 0;
+            width: 280px;
+            height: 100%;
+            background: var(--green-dark);
+            border-right: 1px solid var(--white-10);
+            z-index: 180;
+            transform: translateX(-100%);
+            transition: transform 0.4s var(--ease-expo);
+            display: flex;
+            flex-direction: column;
+            padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 2vw, 1.5rem);
+            overflow-y: auto;
+        }
+        .slide-menu.open { transform: translateX(0); }
+
+        .slide-menu .menu-header {
+            margin-bottom: 1.75rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--white-10);
+        }
+        .slide-menu .menu-header .label { font-size: var(--label-size); color: var(--green-accent); }
+        .slide-menu .menu-header p { font-size: var(--small-size); color: var(--white-40); margin-top: 0.25rem; }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            color: var(--white-60);
+            font-size: var(--small-size);
+            font-family: var(--font-body);
+        }
+        .menu-item:hover { background: var(--white-05); color: var(--white); }
+        .menu-item.active { background: var(--white-10); color: var(--white); }
+        .menu-item .menu-num {
+            font-size: 0.62rem;
+            font-weight: 600;
+            color: var(--green-accent);
+            letter-spacing: 0.08em;
+            min-width: 20px;
+        }
+
+        .menu-divider {
+            height: 1px;
+            background: var(--white-10);
+            margin: 0.75rem 0;
+        }
+
+        .menu-ext-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+            text-decoration: none;
+            color: var(--white-40);
+            font-size: var(--small-size);
+            font-family: var(--font-body);
+        }
+        .menu-ext-link:hover { background: var(--white-05); color: var(--white-60); }
+        .menu-ext-link .menu-icon {
+            font-size: 0.65rem;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* ===========================================
+           SLIDE 1 — TITLE
+           =========================================== */
+        #slide-1 .bg-glow-1 {
+            width: clamp(300px, 55vw, 650px);
+            height: clamp(300px, 55vw, 650px);
+            background: radial-gradient(circle, rgba(29,185,84,0.12) 0%, transparent 65%);
+            top: -10%; right: -5%;
+        }
+
+        #slide-1 .bg-glow-2 {
+            width: clamp(200px, 35vw, 420px);
+            height: clamp(200px, 35vw, 420px);
+            background: radial-gradient(circle, rgba(5,68,19,0.7) 0%, transparent 70%);
+            bottom: -5%; left: 8%;
+        }
+
+        #slide-1 .eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: clamp(1rem, 2vw, 2rem);
+        }
+        #slide-1 .eyebrow .line {
+            width: 32px;
+            height: 1px;
+            background: var(--green-accent);
+        }
+        #slide-1 h1 .highlight { color: var(--green-accent); }
+        #slide-1 .subtitle {
+            margin-top: clamp(0.75rem, 1.5vw, 1.25rem);
+            font-size: clamp(0.85rem, 1.8vw, 1.2rem);
+            color: var(--white-60);
+            font-weight: 300;
+        }
+        #slide-1 .meta-row {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.75rem, 2vw, 1.75rem);
+            margin-top: clamp(2rem, 4vw, 3.5rem);
+        }
+        #slide-1 .meta-sep { width: 1px; height: 18px; background: var(--white-20); }
+        #slide-1 .meta-row span {
+            font-size: var(--small-size);
+            color: var(--white-40);
+            letter-spacing: 0.05em;
+        }
+
+        /* ===========================================
+           SLIDE 2 — WHY THIS MATTERS NOW
+           =========================================== */
+        #slide-2 .reasons-list {
+            margin-top: clamp(1rem, 2vw, 1.75rem);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.6rem, 1.2vw, 1rem);
+        }
+        #slide-2 .reason-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            background: var(--white-05);
+            border: 1px solid var(--white-10);
+            border-radius: 10px;
+            padding: clamp(0.75rem, 1.5vw, 1.25rem) clamp(1rem, 2vw, 1.5rem);
+        }
+        #slide-2 .reason-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green-accent);
+            margin-top: 0.4em;
+            flex-shrink: 0;
+        }
+        #slide-2 .reason-item p {
+            font-size: var(--body-size);
+            color: var(--white-80);
+            line-height: 1.5;
+        }
+
+        /* ===========================================
+           SLIDE 3 — OVERVIEW GRID
+           =========================================== */
+        #slide-3 .areas-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--element-gap);
+            margin-top: clamp(1rem, 2vw, 1.75rem);
+        }
+        #slide-3 .area-card {
+            background: var(--white-05);
+            border: 1px solid var(--white-10);
+            border-radius: 12px;
+            padding: clamp(1rem, 2vw, 1.75rem);
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        #slide-3 .area-num {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 800;
+            color: var(--green-accent);
+            line-height: 1;
+        }
+        #slide-3 .area-name {
+            font-family: var(--font-display);
+            font-size: clamp(0.9rem, 1.5vw, 1.15rem);
+            font-weight: 700;
+            color: var(--white);
+        }
+        #slide-3 .area-desc {
+            font-size: var(--small-size);
+            color: var(--white-60);
+            line-height: 1.5;
+        }
+
+        /* ===========================================
+           WHITE OPPORTUNITY SLIDES — SHARED LAYOUT
+           Used by slide-4, slide-5 (and future slides)
+           =========================================== */
+        .wopp { background: #ffffff; }
+
+        .wopp .slide-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(1.5rem, 3vw, 2.5rem);
+            align-items: center;
+            justify-content: unset;
+        }
+
+        .wopp .label  { color: #1db954; }
+        .wopp h2      { color: #133C2B; font-size: clamp(1.25rem, 2.5vw, 2rem); }
+        .wopp .divider { background: #1db954; margin: clamp(0.4rem, 0.8vw, 0.7rem) 0; }
+
+        /* Left column */
+        .wopp .disc-left {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.5rem, 0.9vw, 0.8rem);
+        }
+
+        .wopp .disc-opp {
+            font-size: clamp(0.68rem, 1vw, 0.82rem);
+            color: #4a5568;
+            line-height: 1.55;
+        }
+
+        .wopp .disc-cards {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.35rem, 0.7vw, 0.55rem);
+        }
+
+        .wopp .disc-cards-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.35rem, 0.7vw, 0.55rem);
+        }
+
+        .wopp .disc-card {
+            background: rgba(19,60,43,0.04);
+            border: 1px solid rgba(19,60,43,0.1);
+            border-radius: 8px;
+            padding: clamp(0.5rem, 0.9vw, 0.8rem);
+        }
+
+        .wopp .disc-card-title {
+            font-size: clamp(0.52rem, 0.65vw, 0.62rem);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #1db954;
+            margin-bottom: 0.4rem;
+        }
+
+        .wopp .disc-card ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.22rem;
+        }
+
+        .wopp .disc-card ul li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.4rem;
+            font-size: clamp(0.6rem, 0.85vw, 0.73rem);
+            color: #4a5568;
+            line-height: 1.45;
+        }
+
+        .wopp .disc-card ul li::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #1db954;
+            margin-top: 0.42em;
+            flex-shrink: 0;
+        }
+
+        .wopp .disc-why {
+            font-size: clamp(0.6rem, 0.82vw, 0.73rem);
+            color: #718096;
+            line-height: 1.5;
+            padding: clamp(0.4rem, 0.7vw, 0.6rem) clamp(0.55rem, 0.9vw, 0.8rem);
+            border-left: 2px solid #1db954;
+            background: rgba(29,185,84,0.04);
+            border-radius: 0 6px 6px 0;
+        }
+
+        /* Right column */
+        .wopp .disc-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(0.75rem, 1.5vw, 1.25rem);
+            height: 100%;
+        }
+
+        .wopp .store-image {
+            width: 100%;
+            max-height: min(52vh, 360px);
+            object-fit: contain;
+            object-position: center;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .wopp .figma-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            font-size: clamp(0.62rem, 0.88vw, 0.78rem);
+            color: #133C2B;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.55rem 1rem;
+            border: 1px solid rgba(19,60,43,0.25);
+            border-radius: 8px;
+            background: rgba(19,60,43,0.04);
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        .wopp .figma-link:hover {
+            background: rgba(19,60,43,0.09);
+            border-color: rgba(19,60,43,0.4);
+        }
+
+        /* Two-image grid for right column */
+        .wopp .disc-images-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.4rem, 0.8vw, 0.65rem);
+            width: 100%;
+        }
+        .wopp .disc-images-pair .store-image {
+            max-height: min(46vh, 320px);
+            object-fit: cover;
+            object-position: top;
+        }
+
+        /* Stacked images (landscape on top, portrait below) */
+        .wopp .disc-images-stack {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.4rem, 0.8vw, 0.65rem);
+            width: 100%;
+        }
+        .wopp .disc-images-stack .store-image {
+            max-height: min(24vh, 165px);
+        }
+
+        /* Slide-7 image override — diagram needs full visibility */
+        #slide-7 .store-image {
+            max-height: min(55vh, 380px);
+            object-fit: contain;
+            object-position: center;
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        /* Slide-6 image override — contain so screenshots aren't cropped */
+        #slide-6 .disc-images-pair .store-image {
+            max-height: min(54vh, 380px);
+            object-fit: contain;
+            object-position: center;
+            background: #f8f8f8;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.06);
+        }
+
+        /* ===========================================
+           SLIDES 5–7 — OPPORTUNITY SLIDES
+           =========================================== */
+        .opp-slide .intro-text {
+            font-size: var(--body-size);
+            color: var(--white-60);
+            margin-top: clamp(0.4rem, 0.8vw, 0.6rem);
+            margin-bottom: clamp(0.75rem, 1.5vw, 1.25rem);
+        }
+        .opp-slide .opp-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--element-gap);
+        }
+        .opp-card {
+            background: var(--white-05);
+            border: 1px solid var(--white-10);
+            border-radius: 12px;
+            padding: clamp(0.9rem, 1.75vw, 1.5rem);
+        }
+        .opp-card .card-label {
+            font-size: var(--label-size);
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green-accent);
+            margin-bottom: 0.75rem;
+        }
+        .opp-card ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .opp-card ul li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            font-size: var(--small-size);
+            color: rgba(255,255,255,0.7);
+            line-height: 1.5;
+        }
+        .opp-card ul li::before {
+            content: '';
+            display: block;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--green-accent);
+            margin-top: 0.45em;
+            flex-shrink: 0;
+        }
+
+        /* ===========================================
+           SLIDE 8 — RECOMMENDED NEXT STEP
+           =========================================== */
+        #slide-8 .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--element-gap);
+            margin-top: clamp(1rem, 2vw, 1.75rem);
+        }
+        #slide-8 .option-card {
+            background: var(--white-05);
+            border: 1px solid var(--white-10);
+            border-radius: 12px;
+            padding: clamp(1rem, 2vw, 1.75rem);
+        }
+        #slide-8 .option-card.featured {
+            border-color: rgba(29,185,84,0.3);
+            background: rgba(29,185,84,0.05);
+        }
+        #slide-8 .option-tag {
+            font-size: var(--label-size);
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green-accent);
+            margin-bottom: 0.4rem;
+        }
+        #slide-8 .option-name {
+            font-family: var(--font-display);
+            font-size: clamp(1rem, 1.75vw, 1.4rem);
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 0.6rem;
+        }
+        #slide-8 .option-why {
+            font-size: var(--small-size);
+            color: var(--white-60);
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+        #slide-8 .option-scope ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        #slide-8 .option-scope ul li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            font-size: var(--small-size);
+            color: var(--white-60);
+            line-height: 1.4;
+        }
+        #slide-8 .option-scope ul li::before {
+            content: '';
+            display: block;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--green-accent);
+            margin-top: 0.4em;
+            flex-shrink: 0;
+        }
+        #slide-8 .next-step-text {
+            font-size: var(--body-size);
+            color: var(--white-60);
+            margin-top: clamp(0.4rem, 0.8vw, 0.6rem);
+            margin-bottom: clamp(0.75rem, 1.5vw, 1.25rem);
+        }
+
+        /* ===========================================
+           SLIDE 9 — CLOSING
+           =========================================== */
+        #slide-9 .bg-glow-close {
+            width: clamp(400px, 60vw, 700px);
+            height: clamp(400px, 60vw, 700px);
+            background: radial-gradient(circle, rgba(29,185,84,0.08) 0%, transparent 65%);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #slide-9 .closing-quote {
+            font-family: var(--font-display);
+            font-size: clamp(1.1rem, 2.5vw, 2rem);
+            font-weight: 700;
+            line-height: 1.4;
+            color: var(--white-80);
+            max-width: 800px;
+            margin-top: clamp(0.5rem, 1vw, 1rem);
+        }
+        #slide-9 .closing-quote .accent { color: var(--green-accent); }
+        #slide-9 .cta-box {
+            margin-top: clamp(1.5rem, 3vw, 2.5rem);
+            background: var(--white-05);
+            border: 1px solid var(--white-10);
+            border-radius: 12px;
+            padding: clamp(1rem, 2vw, 1.5rem) clamp(1.25rem, 2.5vw, 2rem);
+            max-width: 600px;
+        }
+        #slide-9 .cta-box p {
+            font-size: var(--small-size);
+            color: var(--white-60);
+            line-height: 1.6;
+        }
+
+        /* ===========================================
+           RESPONSIVE BREAKPOINTS
+           =========================================== */
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(1rem, 3vw, 2rem);
+                --content-gap:   clamp(0.5rem, 1.5vw, 1.25rem);
+            }
+            h1 { font-size: clamp(1.8rem, 4.5vw, 3.5rem); }
+            h2 { font-size: clamp(1.2rem, 2.5vw, 2rem); }
+        }
+
+        @media (max-height: 600px) {
+            :root { --slide-padding: clamp(0.75rem, 2vw, 1.5rem); }
+        }
+
+        @media (max-width: 768px) {
+            #slide-3 .areas-grid,
+            .opp-slide .opp-grid,
+            #slide-8 .options-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { transition: opacity 0.2s ease; transform: none; }
+            html { scroll-behavior: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="progress-bar" id="progressBar"></div>
+    <nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
+    <div class="slide-counter" id="slideCounter">1 / 9</div>
+
+    <button class="menu-btn" id="menuBtn" aria-label="Open navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    <div class="menu-overlay" id="menuOverlay"></div>
+    <aside class="slide-menu" id="slideMenu">
+        <div class="menu-header">
+            <div class="label">NHCI Strategic Proposal</div>
+            <p>Product Evolution Opportunities</p>
+        </div>
+    </aside>
+
+    <!-- ======================================================
+         SLIDE 1 — TITLE
+    ====================================================== -->
+    <section class="slide" id="slide-1" aria-label="Title">
+        <div class="bg-circle bg-glow-1"></div>
+        <div class="bg-circle bg-glow-2"></div>
+        <div class="bg-grid"></div>
+        <div class="slide-content">
+            <div class="eyebrow reveal">
+                <div class="line"></div>
+                <span class="label">NHCI Strategic Proposal</span>
+            </div>
+            <h1 class="reveal">
+                Sakani Product<br>
+                Evolution<br>
+                <span class="highlight">Opportunities</span>
+            </h1>
+            <p class="subtitle reveal">Focused improvement areas to strengthen how Sakani is seen, understood, and delivered.</p>
+            <div class="meta-row reveal">
+                <span>Management Discussion</span>
+                <div class="meta-sep"></div>
+                <span>2026</span>
+                <div class="meta-sep"></div>
+                <span>4 Areas</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 2 — WHY THIS MATTERS NOW
+    ====================================================== -->
+    <section class="slide" id="slide-2" aria-label="Why This Matters Now">
+        <div class="slide-content">
+            <div class="reveal">
+                <span class="label">01 — Context</span>
+                <div class="divider"></div>
+                <h2>Why This<br>Matters Now</h2>
+            </div>
+            <div class="reasons-list">
+                <div class="reason-item reveal">
+                    <div class="reason-dot"></div>
+                    <p>Sakani continues to evolve as a product — some high-value touchpoints can better reflect that evolution.</p>
+                </div>
+                <div class="reason-item reveal">
+                    <div class="reason-dot"></div>
+                    <p>A focused set of improvement areas can support stronger user perception and better team alignment.</p>
+                </div>
+                <div class="reason-item reveal">
+                    <div class="reason-dot"></div>
+                    <p>The next opportunity is to make existing value easier to discover, clearer to understand, and more consistently delivered.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 3 — FOUR OPPORTUNITY AREAS
+    ====================================================== -->
+    <section class="slide" id="slide-3" aria-label="Four Opportunity Areas">
+        <div class="slide-content">
+            <div class="reveal">
+                <span class="label">02 — Overview</span>
+                <div class="divider"></div>
+                <h2>Four Opportunity Areas</h2>
+            </div>
+            <div class="areas-grid reveal">
+                <div class="area-card">
+                    <div class="area-num">01</div>
+                    <div class="area-name">Discoverability</div>
+                    <p class="area-desc">Strengthen how Sakani is presented in the App Store and Play Store.</p>
+                </div>
+                <div class="area-card">
+                    <div class="area-num">02</div>
+                    <div class="area-name">User Communication</div>
+                    <p class="area-desc">Evolve from transactional messages to a clearer product journey.</p>
+                </div>
+                <div class="area-card">
+                    <div class="area-num">03</div>
+                    <div class="area-name">Product Visibility</div>
+                    <p class="area-desc">Make major improvements visible through owned channels.</p>
+                </div>
+                <div class="area-card">
+                    <div class="area-num">04</div>
+                    <div class="area-name">Release Readiness</div>
+                    <p class="area-desc">Improve how teams prepare and validate before launch.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 4 — DISCOVERABILITY (WHITE THEME)
+    ====================================================== -->
+    <section class="slide wopp" id="slide-4" aria-label="Discoverability">
+        <div class="slide-content">
+
+            <!-- LEFT COLUMN — all text content -->
+            <div class="disc-left reveal">
+                <div>
+                    <span class="label">03 — Area 1</span>
+                    <div class="divider"></div>
+                    <h2>Discoverability</h2>
+                </div>
+
+                <p class="disc-opp">
+                    Strengthen how Sakani is presented across the Apple App Store and Google Play Store so the product is easier to find and better reflects its current value.
+                </p>
+
+                <div class="disc-cards">
+                    <!-- What can evolve -->
+                    <div class="disc-card">
+                        <div class="disc-card-title">What can evolve</div>
+                        <ul>
+                            <li>Refresh app store screenshots</li>
+                            <li>Review naming and keyword strategy</li>
+                            <li>Reassess category alignment</li>
+                            <li>Improve the store description and bilingual positioning</li>
+                        </ul>
+                    </div>
+
+                    <!-- Expected outcome + What needs alignment -->
+                    <div class="disc-cards-row">
+                        <div class="disc-card">
+                            <div class="disc-card-title">Expected outcome</div>
+                            <ul>
+                                <li>Stronger first impression</li>
+                                <li>Better visibility in app store search</li>
+                                <li>Clearer positioning versus competitors</li>
+                            </ul>
+                        </div>
+                        <div class="disc-card">
+                            <div class="disc-card-title">What needs alignment</div>
+                            <ul>
+                                <li>Product and Marketing ownership</li>
+                                <li>Content preparation</li>
+                                <li>Agreement on language and positioning</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="disc-why">
+                    <strong>Why it matters —</strong> The app store is often the first product impression. Clearer positioning can improve discoverability, install conversion, and market perception.
+                </p>
+            </div>
+
+            <!-- RIGHT COLUMN — image + link -->
+            <div class="disc-right reveal">
+                <img
+                    src="sakani-appstore.png"
+                    alt="Sakani current state — Apple App Store and Google Play Store"
+                    class="store-image"
+                >
+                <a
+                    href="https://www.figma.com/deck/rm1cuMBVNVeJDL3H48xAio/Sakani-App-Category?node-id=1-2796"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="figma-link"
+                >
+                    ↗ Full presentation: Innovation + DX + Marketing
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 5 — USER COMMUNICATION (WHITE THEME)
+    ====================================================== -->
+    <section class="slide wopp" id="slide-5" aria-label="User Communication">
+        <div class="slide-content">
+
+            <!-- LEFT COLUMN — all text content -->
+            <div class="disc-left reveal">
+                <div>
+                    <span class="label">04 — Area 2</span>
+                    <div class="divider"></div>
+                    <h2>User Communication</h2>
+                </div>
+
+                <p class="disc-opp">
+                    Evolve user communication from mainly transactional messages into a clearer product introduction and engagement journey.
+                </p>
+
+                <div class="disc-cards">
+                    <!-- What can evolve -->
+                    <div class="disc-card">
+                        <div class="disc-card-title">What can evolve</div>
+                        <ul>
+                            <li>Improve OTP SMS and email experience</li>
+                            <li>Introduce a welcome message after signup</li>
+                            <li>Add early product education for new users</li>
+                            <li>Use selective communication for major features and updates</li>
+                        </ul>
+                    </div>
+
+                    <!-- Expected outcome + What needs alignment -->
+                    <div class="disc-cards-row">
+                        <div class="disc-card">
+                            <div class="disc-card-title">Expected outcome</div>
+                            <ul>
+                                <li>Better first impression</li>
+                                <li>Stronger early engagement</li>
+                                <li>Improved awareness of Sakani's core value</li>
+                            </ul>
+                        </div>
+                        <div class="disc-card">
+                            <div class="disc-card-title">What needs alignment</div>
+                            <ul>
+                                <li>Coordination between Product and Marketing</li>
+                                <li>Content ownership</li>
+                                <li>Decision on which communications matter most</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="disc-why">
+                    <strong>Why it matters —</strong> The first messages users receive shape trust, clarity, and product understanding.
+                </p>
+            </div>
+
+            <!-- RIGHT COLUMN — 2 images -->
+            <div class="disc-right reveal">
+                <div class="disc-images-pair">
+                    <img src="sakani-sms.png"   alt="Sakani OTP SMS experience"   class="store-image">
+                    <img src="sakani-email.png" alt="Sakani OTP email experience" class="store-image">
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 6 — PRODUCT VISIBILITY (WHITE THEME)
+    ====================================================== -->
+    <section class="slide wopp" id="slide-6" aria-label="Product Visibility">
+        <div class="slide-content">
+
+            <!-- LEFT COLUMN — all text content -->
+            <div class="disc-left reveal">
+                <div>
+                    <span class="label">05 — Area 3</span>
+                    <div class="divider"></div>
+                    <h2>Product Visibility</h2>
+                </div>
+
+                <p class="disc-opp">
+                    Make major product improvements more visible through Sakani's owned channels, especially the website and targeted user communication.
+                </p>
+
+                <div class="disc-cards">
+                    <!-- What can evolve -->
+                    <div class="disc-card">
+                        <div class="disc-card-title">What can evolve</div>
+                        <ul>
+                            <li>Introduce a product updates or What's New area</li>
+                            <li>Turn banners into useful destinations</li>
+                            <li>Publish selected feature updates on the website</li>
+                            <li>Support major launches with SEO-friendly content</li>
+                        </ul>
+                    </div>
+
+                    <!-- Expected outcome + What needs alignment -->
+                    <div class="disc-cards-row">
+                        <div class="disc-card">
+                            <div class="disc-card-title">Expected outcome</div>
+                            <ul>
+                                <li>Greater awareness of product improvements</li>
+                                <li>Higher adoption of major features</li>
+                                <li>Better SEO support through richer content</li>
+                            </ul>
+                        </div>
+                        <div class="disc-card">
+                            <div class="disc-card-title">What needs alignment</div>
+                            <ul>
+                                <li>Website content ownership</li>
+                                <li>Collaboration between Product and Marketing</li>
+                                <li>Prioritization of major updates worth communicating</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="disc-why">
+                    <strong>Why it matters —</strong> New capabilities only create value when users know they exist. Stronger visibility can improve adoption and strengthen how the product is perceived.
+                </p>
+            </div>
+
+            <!-- RIGHT COLUMN — 2 images side by side -->
+            <div class="disc-right reveal">
+                <div class="disc-images-pair">
+                    <img src="sakani-vis1.png" alt="Sakani website product update page" class="store-image">
+                    <img src="sakani-vis2.png" alt="Sakani banner and email visibility"  class="store-image">
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 7 — RELEASE READINESS (WHITE THEME)
+    ====================================================== -->
+    <section class="slide wopp" id="slide-7" aria-label="Release Readiness">
+        <div class="slide-content">
+
+            <!-- LEFT COLUMN — all text content -->
+            <div class="disc-left reveal">
+                <div>
+                    <span class="label">06 — Area 4</span>
+                    <div class="divider"></div>
+                    <h2>Release Readiness</h2>
+                </div>
+
+                <p class="disc-opp">
+                    Improve how teams prepare for launches so functionality and experience can be validated with greater confidence before release.
+                </p>
+
+                <div class="disc-cards">
+                    <div class="disc-card">
+                        <div class="disc-card-title">What can evolve</div>
+                        <ul>
+                            <li>Give teams earlier visibility of upcoming releases</li>
+                            <li>Create a readiness window before launch</li>
+                            <li>Add experience validation alongside functional testing</li>
+                            <li>Align Product, Design, Engineering, and QA earlier</li>
+                        </ul>
+                    </div>
+
+                    <div class="disc-cards-row">
+                        <div class="disc-card">
+                            <div class="disc-card-title">Expected outcome</div>
+                            <ul>
+                                <li>Better launch preparedness</li>
+                                <li>Stronger alignment across teams</li>
+                                <li>Reduced risk of design and experience gaps</li>
+                            </ul>
+                        </div>
+                        <div class="disc-card">
+                            <div class="disc-card-title">What needs alignment</div>
+                            <ul>
+                                <li>Shared visibility of release timing</li>
+                                <li>Clear checkpoints before launch</li>
+                                <li>Agreement on who validates what and when</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="disc-why">
+                    <strong>Why it matters —</strong> Stronger preparation improves launch quality, reduces visible gaps, and gives teams time to validate what will be released.
+                </p>
+            </div>
+
+            <!-- RIGHT COLUMN — image -->
+            <div class="disc-right reveal">
+                <img
+                    src="sakani-readiness.png"
+                    alt="Release readiness process diagram"
+                    class="store-image"
+                    id="readiness-img"
+                >
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 8 — RECOMMENDED NEXT STEP
+    ====================================================== -->
+    <section class="slide" id="slide-8" aria-label="Recommended Next Step">
+        <div class="slide-content">
+            <div class="reveal">
+                <span class="label">07 — Next Step</span>
+                <div class="divider"></div>
+                <h2>Recommended Next Step</h2>
+            </div>
+            <p class="next-step-text reveal">
+                Select one focused area, confirm ownership, and define a practical first scope with the relevant stakeholders.
+            </p>
+            <div class="options-grid reveal">
+                <div class="option-card">
+                    <div class="option-tag">Option 1</div>
+                    <div class="option-name">User Communication</div>
+                    <p class="option-why">The opportunity is clear, the improvement can be visible quickly, and it strengthens the connection between Product and Marketing.</p>
+                    <div class="option-scope">
+                        <ul>
+                            <li>OTP communication improvement</li>
+                            <li>Welcome email for new users</li>
+                            <li>One follow-up communication introducing a key capability</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="option-card featured">
+                    <div class="option-tag">Option 2</div>
+                    <div class="option-name">Release Readiness</div>
+                    <p class="option-why">Addresses a real execution need, improves preparedness across teams, and helps reduce gaps before launch.</p>
+                    <div class="option-scope">
+                        <ul>
+                            <li>Pre-release readiness checklist</li>
+                            <li>Shared visibility of launch timing</li>
+                            <li>Experience validation checkpoint before release</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================================================
+         SLIDE 9 — CLOSING
+    ====================================================== -->
+    <section class="slide" id="slide-9" aria-label="Closing">
+        <div class="bg-circle bg-glow-close"></div>
+        <div class="bg-grid"></div>
+        <div class="slide-content">
+            <div class="reveal">
+                <span class="label">08 — Closing</span>
+                <div class="divider"></div>
+            </div>
+            <p class="closing-quote reveal">
+                Sakani's next stage of evolution is not only about adding more features. It is also about making product value
+                <span class="accent">more visible, easier to understand,</span>
+                and more consistently delivered.
+            </p>
+            <div class="cta-box reveal">
+                <p>The opportunity now is to align on one focused area, confirm ownership, and move forward with a practical first scope.</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides        = Array.from(document.querySelectorAll('.slide'));
+                this.total         = this.slides.length;
+                this.current       = 0;
+                this.progressBar   = document.getElementById('progressBar');
+                this.counter       = document.getElementById('slideCounter');
+                this.dotsContainer = document.getElementById('navDots');
+                this.init();
+            }
+
+            init() {
+                this.buildMenu();
+                this.buildDots();
+                this.observe();
+                this.onKey();
+                this.onTouch();
+                this.onWheel();
+                this.updateUI(0);
+            }
+
+            buildMenu() {
+                const btn     = document.getElementById('menuBtn');
+                const overlay = document.getElementById('menuOverlay');
+                const menu    = document.getElementById('slideMenu');
+
+                const open   = () => { btn.classList.add('open'); overlay.classList.add('open'); menu.classList.add('open'); };
+                const close  = () => { btn.classList.remove('open'); overlay.classList.remove('open'); menu.classList.remove('open'); };
+                const toggle = () => menu.classList.contains('open') ? close() : open();
+
+                btn.addEventListener('click', toggle);
+                overlay.addEventListener('click', close);
+                document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+
+                this.menuItems = [];
+                this.slides.forEach((slide, i) => {
+                    const label = slide.getAttribute('aria-label') || `Slide ${i + 1}`;
+                    const item  = document.createElement('button');
+                    item.className = 'menu-item';
+                    item.innerHTML = `<span class="menu-num">${String(i + 1).padStart(2, '0')}</span>${label}`;
+                    item.addEventListener('click', () => { this.goTo(i); close(); });
+                    menu.appendChild(item);
+                    this.menuItems.push(item);
+                });
+
+                // Separator + link back to main proposal
+                const divider = document.createElement('div');
+                divider.className = 'menu-divider';
+                menu.appendChild(divider);
+
+                const backLink = document.createElement('a');
+                backLink.className = 'menu-ext-link';
+                backLink.href = 'sakani-proposal.html';
+                backLink.innerHTML = `<span class="menu-icon">←</span>Workflow &amp; Experience Proposal`;
+                menu.appendChild(backLink);
+
+                this.closeMenu = close;
+            }
+
+            buildDots() {
+                this.slides.forEach((_, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'nav-dot';
+                    btn.setAttribute('aria-label', `Slide ${i + 1}`);
+                    btn.addEventListener('click', () => this.goTo(i));
+                    this.dotsContainer.appendChild(btn);
+                });
+            }
+
+            observe() {
+                const io = new IntersectionObserver(entries => {
+                    entries.forEach(e => {
+                        if (e.isIntersecting) {
+                            e.target.classList.add('visible');
+                            const idx = this.slides.indexOf(e.target);
+                            if (idx !== -1) this.updateUI(idx);
+                        }
+                    });
+                }, { threshold: 0.6 });
+                this.slides.forEach(s => io.observe(s));
+            }
+
+            onKey() {
+                document.addEventListener('keydown', e => {
+                    if (['ArrowRight', 'ArrowDown', ' '].includes(e.key)) {
+                        e.preventDefault();
+                        this.goTo(Math.min(this.current + 1, this.total - 1));
+                    }
+                    if (['ArrowLeft', 'ArrowUp'].includes(e.key)) {
+                        e.preventDefault();
+                        this.goTo(Math.max(this.current - 1, 0));
+                    }
+                    if (e.key === 'Home') { e.preventDefault(); this.goTo(0); }
+                    if (e.key === 'End')  { e.preventDefault(); this.goTo(this.total - 1); }
+                });
+            }
+
+            onTouch() {
+                let startY = 0, startX = 0;
+                document.addEventListener('touchstart', e => {
+                    startY = e.touches[0].clientY;
+                    startX = e.touches[0].clientX;
+                }, { passive: true });
+                document.addEventListener('touchend', e => {
+                    const dy = startY - e.changedTouches[0].clientY;
+                    const dx = startX - e.changedTouches[0].clientX;
+                    if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 40) {
+                        dy > 0
+                            ? this.goTo(Math.min(this.current + 1, this.total - 1))
+                            : this.goTo(Math.max(this.current - 1, 0));
+                    }
+                }, { passive: true });
+            }
+
+            onWheel() {
+                let t;
+                document.addEventListener('wheel', e => {
+                    e.preventDefault();
+                    clearTimeout(t);
+                    t = setTimeout(() => {
+                        if (e.deltaY > 30)       this.goTo(Math.min(this.current + 1, this.total - 1));
+                        else if (e.deltaY < -30) this.goTo(Math.max(this.current - 1, 0));
+                    }, 50);
+                }, { passive: false });
+            }
+
+            goTo(i) {
+                if (i < 0 || i >= this.total) return;
+                this.slides[i].scrollIntoView({ behavior: 'smooth' });
+                this.updateUI(i);
+            }
+
+            updateUI(i) {
+                this.current = i;
+                this.progressBar.style.width = `${((i + 1) / this.total) * 100}%`;
+                this.counter.textContent = `${i + 1} / ${this.total}`;
+                this.dotsContainer.querySelectorAll('.nav-dot').forEach((d, idx) =>
+                    d.classList.toggle('active', idx === i));
+                if (this.menuItems) {
+                    this.menuItems.forEach((item, idx) =>
+                        item.classList.toggle('active', idx === i));
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => new SlidePresentation());
+    </script>
+</body>
+</html>
